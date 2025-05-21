@@ -1,0 +1,6 @@
+steps:
+- name: gcr.io/cloud-builders/gsutil
+  id: Sync composer bucket with dags folder.
+  args: ["rsync", "-r", "-d", "./dags", "gs://$_DAG_BUCKET/dags"]
+options:
+  logging: CLOUD_LOGGING_ONLY
