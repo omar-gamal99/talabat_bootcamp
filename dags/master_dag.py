@@ -14,7 +14,7 @@ default_args = {
 
 
 dag = DAG(
-    dag_id="daily_transfer_run",
+    dag_id="daily_transfer_runs",
     description="All transfer DAGs",
     schedule_interval="05 00 * * *",
     concurrency=6,
