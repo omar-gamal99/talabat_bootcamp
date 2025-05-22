@@ -6,8 +6,7 @@ from airflow import DAG
 default_args = {
     "owner": "Data Engineering",
     "depends_on_past": False,
-    "start_date": datetime(2024, 9, 22),
-    "catchup": False,
+    "start_date": datetime(2025, 5, 22),
     "bigquery_conn_id": "bigquery_default",
     "max_active_runs": 1,
     "retries": 0,
@@ -22,6 +21,7 @@ dag = DAG(
     max_active_runs=1,
     default_args=default_args,
     tags=["master_transfer"],
+    catchup=False,
 )
 
 ext_date = "{{ execution_date }}"
