@@ -22,7 +22,6 @@ dag = DAG(
     max_active_runs=1,
     default_args=default_args,
     tags=["master_transfer"],
-    priority=1,
 )
 
 ext_date = "{{ execution_date }}"
