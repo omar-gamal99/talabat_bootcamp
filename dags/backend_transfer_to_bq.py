@@ -17,7 +17,7 @@ default_args = {
 }
 
 dag = DAG(
-    "DATABASE_NAME_DB_EXTRAct",
+    "DATABASE_NAME_DB_EXTRACT",
     default_args=default_args,
     description="Transfer data from DATABASE NAME PostgreSQL to GCS and load into BigQuery",
     schedule_interval=None,
