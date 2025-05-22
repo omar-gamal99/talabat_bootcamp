@@ -68,15 +68,15 @@ def generate_dag(dag_id, schedule, tables, default_args, config):
 config_files = list(
     itertools.chain(
         glob.glob(
-            "./gcs/dags/customers_db/*.yaml",
+            "./gcs/dags/customers_db/dag_factory/*.yaml",
             recursive=True,
         ),
         glob.glob(
-            "./gcs/dags/orders_db/*.yaml",
+            "./gcs/dags/orders_db/dag_factory/*.yaml",
             recursive=True,
         ),
         glob.glob(
-            "./gcs/dags/products_db/*.yaml",
+            "./gcs/dags/products_db/dag_factory/*.yaml",
             recursive=True,
         ),
     )
