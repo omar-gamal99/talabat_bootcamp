@@ -42,16 +42,15 @@ def create_trigger_task(trigger_dag_id):
 
 with TaskGroup(group_id="P1_pipelines", dag=dag) as P1_pipelines:
     p1_dags = [
-        "FIRST_DATABASE_DAG_ID",
-        "SECOND_DATABASE_DAG_ID",
+        "customers_db_extract",
+        "orders_db_extract",
     ]
     for task_id in p1_dags:
         create_trigger_task(task_id)
 
 with TaskGroup(group_id="P2_pipelines", dag=dag) as P2_pipelines:
     p2_dags = [
-        "THIRD_DATABASE_DAG_ID",
-        "FOURTH_DATABASE_DAG_ID",
+        "products_db_extract",
     ]
     for task_id in p2_dags:
         create_trigger_task(task_id)
