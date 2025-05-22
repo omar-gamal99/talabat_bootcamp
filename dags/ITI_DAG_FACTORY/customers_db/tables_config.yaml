@@ -1,0 +1,30 @@
+dag_id: "customers_db_extract"
+description: "extract tables from customers db PostGres DB"
+schedule_interval: null
+concurrency: 10
+max_active_runs: 1
+default_args:
+  owner: "DEng team"
+  depends_on_past: false
+  start_date: "2025-01-01"
+  catchup: false
+  retries: 3
+  email:
+    - "dataeng@talabat.com"
+  email_on_failure: true
+
+default_dataset: data_platform_customers
+default_source_schema: vouchers
+default_db_type: PostgreSQL
+default_postgres_conn_id: backend-customers-prod-db
+
+tables:
+  - table_name: customer_vouchers
+    columns: "*"
+    
+
+  - table_name: voucher_codes
+    columns: "*"
+
+
+
