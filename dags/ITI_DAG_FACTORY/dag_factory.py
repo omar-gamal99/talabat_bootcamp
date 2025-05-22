@@ -1,33 +1,11 @@
 import glob
 import itertools
 from datetime import datetime
-import re
-
 import yaml
 from airflow.decorators import dag, task_group
-from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import (
     GCSToBigQueryOperator,
 )
-from cosmos.operators import DbtRunOperator
-
-from data_transfers.general_backend_export_transfer.dbt.include.constants import (
-    transfers_dbt_path,
-)
-from data_transfers.general_backend_export_transfer.dbt.include.profiles import (
-    transfers_dbt,
-)
-from data_transfers.transfers_utils.get_destination_project import (
-    get_destination_project,
-)
-from data_transfers.transfers_utils.get_where_condition_transfer_dags import (
-    get_where_condition,
-)
-from data_transfers.transfers_utils.operators.postgres_db_connector_new_v1 import (
-    PostgresDbConnectorOperator,
-)
-from data_transfers.transfers_utils.operators.transfer_metadata import TransferMetadata
-
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import (
     PostgresToGCSOperator,
 )
