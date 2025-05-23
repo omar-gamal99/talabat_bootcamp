@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 
-
+POSTGRES_CONN_ID = "postgress-conn-aya-hany"
 ## Define the default arguments for the DAG
 default_args = {
     'owner': 'ayah',
@@ -22,6 +22,7 @@ with DAG(
     ## Task to transfer data from PostgreSQL to GCS
     postgres_to_gcs = PostgresToGCSOperator(
         task_id = 'postgres_to_gcs',
+        postgres_conn_id=POSTGRES_CONN_ID,
         sql = 'SELECT * FROM Orders;',
         bucket = 'talabat-labs-postgres-to-gcs',
         filename = 'orders-aya-hany',
