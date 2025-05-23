@@ -16,7 +16,7 @@ default_args = {
 
 # Define the DAG
 with DAG(
-    'simple_python_task_toadd_twonums',
+    'simple_task_to_transfer_from_postgres_to_bigquery',
     default_args=default_args,
     description='A simple DAG with a python task to sum 2 numbers',
     schedule_interval='@daily',  # Run once a day
