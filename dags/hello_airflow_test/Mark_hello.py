@@ -8,7 +8,7 @@ def greet():
 
 with DAG(
     dag_id="example_airflow_dag_mark",
-    schedule_interval=None,
+    schedule=None,
     start_date=datetime(2025, 5, 23),
     catchup=False,
     tags=["example"],
