@@ -4,7 +4,8 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from datetime import datetime
 
 with DAG(
-    dag_id="postgres_to_bigquery_dag",
+    dag_id="" \
+    "",
     start_date=datetime(2023, 1, 1),
     schedule_interval=None,
     catchup=False
@@ -13,13 +14,13 @@ with DAG(
         task_id='export_pg_to_gcs_hoda',
         postgres_conn_id='postgres-conn-hoda',
         sql='SELECT * FROM public.orders;',
-        bucket='talabat-labs-postgres-gcs',
-        filename='exported_data/{{ ds_nodash }}.json',
+        bucket='talabat-labs-postgres-to-gcs',
+        filename='exported_data_hoda/{{ ds_nodash }}.json',
         export_format='json'
     )
      load_to_bq = GCSToBigQueryOperator(
         task_id='load_to_bigquery_hoda',
-        bucket='talabat-labs-postgres-gcs',
+        bucket='talabat-labs-postgres-to-gcs',
         source_objects=['exported_data/{{ ds_nodash }}.json'],
         destination_project_dataset_table='talabat-labs-3927.landing.orders',
         source_format='NEWLINE_DELIMITED_JSON',
