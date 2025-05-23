@@ -8,7 +8,7 @@ def greet():
 
 
 with DAG(
-    dag_id="example_airflow_dag_Mariam_Mahmoud",
+    dag_id="example_airflow_dag_mariam_mahmoud",
     schedule=None,
     start_date=datetime(2025, 5, 15),
     catchup=False,
