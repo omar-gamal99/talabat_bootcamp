@@ -16,7 +16,6 @@ default_args = {
     "retries": 1,
 }
 
-
 dag = DAG(
     "orders_db_transfer_mark_eskander",
     default_args=default_args,
