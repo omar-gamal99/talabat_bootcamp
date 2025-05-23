@@ -4,9 +4,6 @@ from airflow.providers.google.cloud.operators.bigquery import PostgreSQLToBigQue
 from datetime import datetime
 
 
-def pull_data_postgres(num1,num2):
-    print(f"the sum is {num1+num2}")
-
 # Define default arguments for the DAG
 default_args = {
     'owner': 'airflow',
