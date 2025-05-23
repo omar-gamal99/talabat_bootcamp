@@ -18,7 +18,7 @@ default_args = {
 with DAG(
     'simple_python_task_toAdd_twoNums',
     default_args=default_args,
-    description='A simple DAG with a python task',
+    description='A simple DAG with a python task to sum 2 numbers',
     schedule_interval='@daily',  # Run once a day
     catchup=False,  # to prevent the dag from trying to run agian and catch days it didnt run
 ) as dag:
