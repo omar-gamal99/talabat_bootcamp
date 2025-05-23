@@ -26,7 +26,7 @@ with DAG(
     transfer_data = PostgreSQLToBigQueryOperator(
         task_id='transfer_data_from_postgres_to_BigQuery',
         source_table='public.orders',
-        destination_table='talabat-labs-3927.landing',
+        destination_table='talabat-labs-3927.landing.yousef-orders',
         postgres_conn_id='postgres-conn_yousef36',
         google_cloud_conn_id='bigquery_default',
     )
