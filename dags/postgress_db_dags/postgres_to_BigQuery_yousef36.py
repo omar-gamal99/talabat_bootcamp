@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 
+
 # Define default arguments for the DAG
 default_args = {
     'owner': 'airflow',
@@ -17,7 +18,7 @@ default_args = {
 with DAG(
     'simple_task_to_transfer_from_postgres_to_bigquery',
     default_args=default_args,
-    description='A simple DAG with a python task to sum 2 numbers',
+    description='A simple Dag to transfer from posgtres to bigquery',
     schedule_interval='@daily',  # Run once a day
     catchup=False,  # to prevent the dag from trying to run agian and catch days it didnt run
 ) as dag:
