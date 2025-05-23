@@ -16,7 +16,7 @@ with DAG(
         task_id='transfer_postgres_to_gcs',
         postgres_conn_id='postgres_connection_elham',
         sql='SELECT * FROM public.orders',
-        bucket_name='talabat-labs-postgres-to-gcs',
+        bucket='talabat-labs-postgres-to-gcs',
         filename='data/postgres_data_elham.json',
         export_format='json',
         gzip=False
@@ -25,7 +25,7 @@ with DAG(
     # Task to load data from GCS to BigQuery
     load_gcs_to_bigquery = GCSToBigQueryOperator(
         task_id='load_gcs_to_bigquery',
-        bucket_name='talabat-labs-postgres-to-gcs',
+        bucket='talabat-labs-postgres-to-gcs',
         source_objects=['data/postgres_data_elham.json'],
         destination_project_dataset_table='talabat-labs-3927.landing.orders-elham',
         source_format='newline_delimited_json',
