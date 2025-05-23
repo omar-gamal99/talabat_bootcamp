@@ -1,5 +1,5 @@
 from airflow import DAG
-from airflow.providers.google.cloud.transfers.sql_to_gcs import SQLToGCSOperator
+from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from datetime import datetime
 
@@ -9,29 +9,29 @@ default_args = {
 }
 
 with DAG(
-    dag_id='pg_to_bq_via_gcs_AKhalifa', 
+    dag_id='pg_to_bq_via_gcs_AKhalifa',
     default_args=default_args,
     schedule_interval='@daily',
     catchup=False,
     tags=['postgres', 'bigquery', 'talabat']
 ) as dag:
 
-    export_from_postgres = SQLToGCSOperator(
+    export_from_postgres = PostgresToGCSOperator(
         task_id='export_pg_to_gcs',
-        sql='SELECT * FROM public.orders',  # ←  PostgreSQL
+        sql='SELECT * FROM public.orders',
         bucket='talabat-labs-postgres-togcs',
         filename='data_exports/orders_{{ ds_nodash }}.csv',
         export_format='CSV',
         field_delimiter=',',
         gzip=False,
-        sql_conn_id='postgress-conn-AKhalifa',
+        postgres_conn_id='postgress-conn-AKhalifa',
     )
 
     load_into_bq = GCSToBigQueryOperator(
         task_id='load_gcs_to_bq',
         bucket='talabat-labs-postgres-togcs',
         source_objects=['data_exports/orders_{{ ds_nodash }}.csv'],
-        destination_project_dataset_table='talabat-labs-3927.landing.orders',  # ← BigQuery destination
+        destination_project_dataset_table='talabat-labs-3927.landing.orders',
         source_format='CSV',
         skip_leading_rows=1,
         write_disposition='WRITE_TRUNCATE',
