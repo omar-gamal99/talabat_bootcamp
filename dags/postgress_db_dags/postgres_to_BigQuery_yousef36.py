@@ -1,6 +1,5 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryToPostgresOperator
 from airflow.providers.google.cloud.operators.bigquery import PostgreSQLToBigQueryOperator
 from datetime import datetime
 
