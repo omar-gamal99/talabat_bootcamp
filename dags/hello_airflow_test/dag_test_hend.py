@@ -9,8 +9,7 @@ def my_function():
 
 with DAG(
     dag_id='python_dag_hend',
-    schedule=None,
-    start_date=datetime(2025,5,23)
+    schedule_interval=datetime(2025,5,22)
 
 )as dag:
 
