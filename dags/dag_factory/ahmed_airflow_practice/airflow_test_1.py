@@ -8,7 +8,7 @@ def my_etl_function():
 
 # Default arguments for the DAG
 default_args = {
-    'start_date': datetime(2025, 23, 5),
+    'start_date': datetime(2025, 5, 23),
     'retries': 1,
 }
 
