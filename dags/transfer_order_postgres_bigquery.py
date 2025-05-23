@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-from airflow.providers.google.cloud.operators.gcs import GCSUploadFileOperator
+from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
@@ -25,9 +25,8 @@ BQ_DATASET = 'talabat-labs-3927.landing'
 BQ_TABLE = 'public.orders'
 
 def extract_orders():
-    hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
-    df = hook.get_pandas_df(sql='SELECT * FROM orders')
-    df.to_csv('/tmp/orders.csv', index=False)
+    df = hook.get_pandas_df(sql='SELECT * FROM public.orders')
+    df.to_csv('/orders-abdullah-adel/orders.csv', index=False)
 
 extract_task = PythonOperator(
     task_id='extract_orders',
@@ -35,7 +34,7 @@ extract_task = PythonOperator(
     dag=dag,
 )
 
-upload_task = GCSUploadFileOperator(
+upload_task = LocalFilesystemToGCSOperator(
     task_id='upload_to_gcs',
     bucket_name=GCS_BUCKET,
     object_name=GCS_PATH,
