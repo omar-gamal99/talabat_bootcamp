@@ -40,6 +40,8 @@ with DAG(
         destination_project_dataset_table=f"talabat-labs-3927.landing.orders-yousefkk",
         create_disposition='CREATE_IF_NEEDED',
         write_disposition="WRITE_TRUNCATE",
+        autodetect=True,source_format="CSV",
+        skip_leading_rows=1,
     )
 
 
