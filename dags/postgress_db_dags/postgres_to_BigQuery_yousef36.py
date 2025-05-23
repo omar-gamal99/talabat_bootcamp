@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.operators.bigquery import PostgreSQLToBigQueryOperator
+from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
+from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from datetime import datetime
 
 
@@ -23,15 +24,25 @@ with DAG(
 ) as dag:
 
     # Define the Bash task
-    transfer_data = PostgreSQLToBigQueryOperator(
-        task_id='transfer_data_from_postgres_to_BigQuery',
-        source_table='public.orders',
-        destination_table='talabat-labs-3927.landing.yousef-orders',
-        postgres_conn_id='postgres-conn_yousef36',
-        google_cloud_conn_id='bigquery_default',
+    postgres_to_gcs = PostgresToGCSOperator(
+        task_id="postgres_to_gcs",
+        postgres_conn_id="postgres-conn_yousef36",
+        sql="select * from orders",
+        bucket="talabat-labs-postgres-to-gcs-yousef36",
+        filename="yousef36",
+        export_format="csv",
+    )
+
+    load_csv = GCSToBigQueryOperator(
+        task_id="gcs_to_bigquery_example",
+        bucket="talabat-labs-postgres-to-gcs-yousef36",
+        source_objects=["talabat-labs-postgres-to-gcs-yousef36/yousef36.csv"],
+        destination_project_dataset_table=f"talabat-labs-3927.landing.orders-yousefkk",
+        create_disposition='CREATE_IF_NEEDED',
+        write_disposition="WRITE_TRUNCATE",
     )
 
 
-    transfer_data 
+    postgres_to_gcs >>  load_csv
 
     
