@@ -38,17 +38,6 @@ with DAG(
         source_objects=['orders-aya-hany.csv'],
         source_format="CSV",
         destination_project_dataset_table=f"{'talabat-labs-3927'}.{'landing'}.{'orders-aya-hany'}",
-        # schema_fields=[
-        #     {"name": "id", "type": "STRING", "mode": "REQUIRED"},
-        #     {"name": "ticker", "type": "STRING", "mode": "NULLABLE"},
-        #     {"name": "date", "type": "STRING", "mode": "NULLABLE"},
-        #     {"name": "open", "type": "FLOAT64", "mode": "NULLABLE"},
-        #     {"name": "high", "type": "FLOAT64", "mode": "NULLABLE"},
-        #     {"name": "low", "type": "FLOAT64", "mode": "NULLABLE"},
-        #     {"name": "close", "type": "FLOAT64", "mode": "NULLABLE"},
-        #     {"name": "volume", "type": "INT64", "mode": "NULLABLE"},
-        # ],
-        # create_disposition='CREATE_IF_NEEDED',  # You can change this if needed
         write_disposition="WRITE_TRUNCATE", 
     )
 
