@@ -12,7 +12,7 @@ BQ_DATASET = "talabat_labs_3927.landing"
 BQ_TABLE = "DataTableDoha"
 
 with DAG(
-    dag_id="postgres_to_bigquery_pipeline",
+    dag_id="postgres_to_bigquery_pipeline_Doha",
     start_date=datetime(2025, 5, 23),
     schedule_interval="@once",
     catchup=False,
