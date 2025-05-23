@@ -19,7 +19,7 @@ with DAG(
     export_from_postgres = PostgresToGCSOperator(
         task_id='export_pg_to_gcs',
         sql='SELECT * FROM public.orders',
-        bucket='talabat-labs-postgres-togcs',
+        bucket='talabat-labs-postgres-to-gcs',
         filename='data_exports/orders_{{ ds_nodash }}.csv',
         export_format='CSV',
         field_delimiter=',',
@@ -29,7 +29,7 @@ with DAG(
 
     load_into_bq = GCSToBigQueryOperator(
         task_id='load_gcs_to_bq',
-        bucket='talabat-labs-postgres-togcs',
+        bucket='talabat-labs-postgres-to-gcs',
         source_objects=['data_exports/orders_{{ ds_nodash }}.csv'],
         destination_project_dataset_table='talabat-labs-3927.landing.orders',
         source_format='CSV',
