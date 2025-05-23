@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 def greet():
-    print("Hello from Airflow!")
+    print("Hello from Airflosw!")
 
 
 with DAG(
