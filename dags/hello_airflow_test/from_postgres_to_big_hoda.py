@@ -23,7 +23,7 @@ with DAG(
         source_objects=['exported_data/{{ ds_nodash }}.json'],
         destination_project_dataset_table='talabat-labs-3927.landing',
         source_format='NEWLINE_DELIMITED_JSON',
-        write_disposition='WRITE_TRUNCATE',  
+        write_disposition='WRITE_EMPTY',  
         autodetect=True
     )
 
