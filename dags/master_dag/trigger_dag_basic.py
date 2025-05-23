@@ -26,7 +26,7 @@ dag = DAG(
 )
 
 TriggerDagRunOperator(
-    task_id="DATABASE_NAME_DB_EXTRACT",
+    task_id="orders_db_transfer_ziad",
     dag=dag,
     trigger_dag_id="trigger_dag_id",
     execution_date=ext_date,
