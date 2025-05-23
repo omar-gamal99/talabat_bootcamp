@@ -26,7 +26,7 @@ with DAG(
         sql=SQL_SELECT,
         bucket=BUCKET_NAME,
         filename=FILE_NAME,
-        export_format="json",
+        export_format="JSON",
     )
 
     # Step 2: Load from GCS to BigQuery
@@ -36,7 +36,7 @@ with DAG(
         source_objects=[FILE_NAME],
         destination_project_dataset_table=f"{BQ_DATASET}.{BQ_TABLE}",
         skip_leading_rows=1,
-        source_format="json",
+        source_format="NEWLINE_DELIMITED_JSON",
         write_disposition="WRITE_TRUNCATE",  # or "WRITE_APPEND"
         autodetect=True,
     )
