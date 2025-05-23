@@ -11,7 +11,7 @@ with DAG(
 ) as dag:
 
     # Step 1: Extract orders from Postgres to GCS as CSV files
-    extract_to_gcs = SQLToGCSOperator(
+    extract_to_gcs = PostgresToGCSOperator(
         task_id='extract_orders_to_gcs',
         sql="SELECT * FROM public.orders",
         bucket='talabat-labs-postgres-to-gcs',  
