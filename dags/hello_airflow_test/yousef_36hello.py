@@ -16,7 +16,7 @@ default_args = {
 
 # Define the DAG
 with DAG(
-    'simple_python_task_toAdd_twoNums',
+    'simple_python_task_toadd_twonums',
     default_args=default_args,
     description='A simple DAG with a python task to sum 2 numbers',
     schedule_interval='@daily',  # Run once a day
