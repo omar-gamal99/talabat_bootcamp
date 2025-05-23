@@ -1,5 +1,5 @@
 from airflow import DAG 
-from airflow.operators.python import pythonOperator
+from airflow.operators.python import PythonOperator
 from datetime import datetime
 
 def rahoun():
