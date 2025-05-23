@@ -9,7 +9,7 @@ def Print_Python():
 with DAG(
     dag_id="example_airflow_dag_Doha",
     schedule=None,
-    start_date=datetime(2025, 5, 23),
+    start_date=datetime(2025, 5, 22),
     catchup=False,
     tags=["example"],
 ) as dag:
