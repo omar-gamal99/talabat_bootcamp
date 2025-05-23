@@ -14,7 +14,7 @@ default_args = {
 }
 
 with DAG(
-    'Postgress to BQ aya-hany',
+    'Postgress-to-BQ-aya-hany',
     default_args=default_args,
     description='Airflow DAG for Postgres to BigQuery ETL',
 ) as postgress_bq_etl :
