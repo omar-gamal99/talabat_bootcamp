@@ -6,20 +6,20 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import (
     GCSToBigQueryOperator,
 )
 
-POSTGRES_CONN_ID = "postgres_conn"
-GCS_BUCKET = "GCS_BUCKET_NAME"
-GCS_FILENAME = "GCS_FILENAME"
-BIGQUERY_DATASET = "PROJECT_ID.DATASET_NAME"
-BIGQUERY_TABLE = "TABLE_NAME"
+POSTGRES_CONN_ID = "postgress-conn"
+GCS_BUCKET = "talabat-labs-postgres-to-gcs"
+GCS_FILENAME = "ziad"
+BIGQUERY_DATASET = "talabat-labs-3927.landing"
+BIGQUERY_TABLE = "ziad-orders"
 
 default_args = {
     "retries": 1,
 }
 
 dag = DAG(
-    "DATABASE_NAME_DB_EXTRACT",
+    "orders_db_transfer_ziad",
     default_args=default_args,
-    description="Transfer data from DATABASE NAME PostgreSQL to GCS and load into BigQuery",
+    description="Transfer data from orders PostgreSQL to GCS and load into BigQuery",
     schedule_interval=None,
     catchup=False,
 )
@@ -27,7 +27,7 @@ dag = DAG(
 transfer_postgres_to_gcs = PostgresToGCSOperator(
     task_id=f"{BIGQUERY_TABLE}_postgres_to_gcs",
     postgres_conn_id=POSTGRES_CONN_ID,
-    sql="SELECT * FROM orders1",
+    sql="SELECT * FROM orders",
     bucket=GCS_BUCKET,
     filename=GCS_FILENAME,
     export_format="json",
