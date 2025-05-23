@@ -5,6 +5,7 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from datetime import datetime
 
 
+
 # Define default arguments for the DAG
 default_args = {
     'owner': 'airflow',
