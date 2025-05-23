@@ -26,7 +26,7 @@ with DAG(
         sql=SQL_SELECT,
         bucket=BUCKET_NAME,
         filename=FILE_NAME,
-        export_format="json",
+        export_format="JSON",
     )
 
     # Step 2: Load from GCS to BigQuery
