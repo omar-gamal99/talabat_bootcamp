@@ -52,9 +52,9 @@ bq_stock_load_csv = GCSToBigQueryOperator(
     bucket=BQ_BUCKET,
     destination_project_dataset_table=f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_TABLE1}",
     source_format="CSV",
-    ource_objects=['orders_islam_{{ ds }}.csv'],
-    create_disposition='CREATE_IF_NEEDED',  # You can change this if needed
-    write_disposition="WRITE_TRUNCATE", # You can change this if needed
-    dag = dag,
+    source_uris=['gs://talabat-labs-postgres-to-gcs/orders_islam_{{ ds }}.csv'],  # Corrected
+    create_disposition='CREATE_IF_NEEDED',
+    write_disposition="WRITE_TRUNCATE",
+    dag=dag,
 )
 postgres_to_gcs >> bq_stock_load_csv
