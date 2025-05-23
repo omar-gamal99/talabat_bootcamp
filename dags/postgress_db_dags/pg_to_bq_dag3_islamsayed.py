@@ -11,7 +11,7 @@ with DAG(
 ) as dag:
      export_pg_to_gcs = PostgresToGCSOperator(
         task_id='orders_postgres_to_gcs3',
-        postgres_conn_id='postgres-conn-islamsayed',
+        postgres_conn_id='postgres_connection_islamsayed',
         sql='SELECT * FROM public.orders;',
         bucket='talabat-labs-postgres-to-gcs',
         filename='exported_data_islam/{{ ds_nodash }}.json',
