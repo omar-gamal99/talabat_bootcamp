@@ -10,7 +10,7 @@ BQ_TABLE = 'talabat-labs-3927.landing.public.orders_john'
 POSTGRES_CONN_ID = 'postgres_conn_john'
 
 with DAG(
-    dag_id='postgres_to_gcs_to_bigquery_john',
+    dag_id='postgres_to_gcs_to_bigquery_john_wassef',
     schedule_interval=None,
     start_date=datetime(2025, 5, 23),
     catchup=False,
