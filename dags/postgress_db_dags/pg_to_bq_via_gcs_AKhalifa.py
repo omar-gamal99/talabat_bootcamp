@@ -35,7 +35,9 @@ with DAG(
         source_format='CSV',
         skip_leading_rows=1,
         write_disposition='WRITE_TRUNCATE',
+        create_disposition='CREATE_IF_NEEDED',
         autodetect=True
     )
+
 
     export_from_postgres >> load_into_bq
