@@ -3,7 +3,7 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime
 
 def hello_john():
-    print("Hello My AirFlow My Name is John ")
+    print("Hello My AirFlow My Name is John.")
 
 
 with DAG(
