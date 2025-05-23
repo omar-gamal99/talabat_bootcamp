@@ -39,7 +39,6 @@ with DAG('postgres_to_bigquery',
         src="{{ ti.xcom_pull(task_ids='extract_postgres_data', key='file_path') }}",
         dst='postgres_data/postgres_data.csv',
         bucket=BUCKET_NAME,
-        gcp_conn_id='google_cloud_default',
         mime_type='text/csv'
     )
 
