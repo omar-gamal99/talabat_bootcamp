@@ -7,7 +7,7 @@ def hello_john():
 
 
 with DAG(
-    dag_id='example_airflow_dag',
+    dag_id='john-first_dag',
     schedule=None,
     start_date=datetime(2025,5,23),
     catchup=False,
