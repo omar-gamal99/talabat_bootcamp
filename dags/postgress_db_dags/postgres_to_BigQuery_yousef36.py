@@ -28,8 +28,8 @@ with DAG(
         task_id="postgres_to_gcs",
         postgres_conn_id="postgres-conn_yousef36",
         sql="select * from orders",
-        bucket="talabat-labs-postgres-to-gcs/yousef36",
-        filename="yousef36",
+        bucket="talabat-labs-postgres-to-gcs",
+        filename="yousef36/yousef36.csv",
         export_format="csv",
     )
 
