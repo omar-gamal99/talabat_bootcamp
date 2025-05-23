@@ -10,8 +10,8 @@ def greet():
 with DAG(
     dag_id="my_airflow_dag",
     schedule=None,
-    start_date=datetime(2025, 5, 15),
-    catchup=False,
+    start_date=datetime(2025, 5, 21),
+    catchup=True,
     tags=["example"],
 ) as dag:
     greet_task = PythonOperator(
