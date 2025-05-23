@@ -31,7 +31,7 @@ with DAG(
         task_id='load_gcs_to_bq',
         bucket='talabat-labs-postgres-to-gcs',
         source_objects=['data_exports/orders_{{ ds_nodash }}.csv'],
-        destination_project_dataset_table='talabat-labs-3927.landing.orders_Khalifa',
+        destination_project_dataset_table='talabat-labs-3927.landing.orders_khalifa',
         source_format='CSV',
         skip_leading_rows=1,
         write_disposition='WRITE_TRUNCATE',
