@@ -11,7 +11,7 @@ BQ_DS = 'talabat-labs-3927.landing'  # Replace with your BigQuery dataset
 BQ_PROJECT = 'my-project'  # Replace with your GCP project ID
 GCS_BUCKET = 'talabat-labs-postgres-to-gcs'  # Replace with your GCS bucket name
 GCS_OBJECT_PATH = 'postgres-test'  # Folder path in GCS to save the CSV
-SOURCE_TABLE_NAME = 'orders'  # PostgreSQL table to export
+SOURCE_TABLE_NAME = 'public.orders'  # PostgreSQL table to export
 POSTGRES_CONNECTION_ID = 'postgresql-bq-connection-Adham'  # Airflow connection ID for PostgreSQL
 FILE_FORMAT = 'csv'  # Export file format
 
@@ -24,7 +24,7 @@ with DAG(
         'retries': 2,
         'retry_delay': timedelta(minutes=5),
     },
-    schedule_interval='0 9 * * *',
+    schedule_interval=None,  
     max_active_runs=1,
     catchup=False,
 ) as dag:
@@ -36,7 +36,7 @@ with DAG(
         sql=f'SELECT * FROM {SOURCE_TABLE_NAME};',
         bucket=GCS_BUCKET,
         filename=f'{GCS_OBJECT_PATH}/{SOURCE_TABLE_NAME}.{FILE_FORMAT}',
-        export_format='csv',
+        export_format='json',
         gzip=False,
         use_server_side_cursor=False,
     )
