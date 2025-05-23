@@ -21,7 +21,7 @@ with DAG(
         task_id='load_to_bigquery_hoda',
         bucket='talabat-labs-postgres-to-gcs',
         source_objects=['exported_data_hoda/{{ ds_nodash }}.json'],
-        destination_project_dataset_table='talabat-labs-3927.landing.orders',
+        destination_project_dataset_table='talabat-labs-3927.landing.orders-hoda',
         source_format='NEWLINE_DELIMITED_JSON',
         write_disposition='WRITE_EMPTY',  
         autodetect=True
