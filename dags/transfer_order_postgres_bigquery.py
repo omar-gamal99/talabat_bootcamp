@@ -11,7 +11,7 @@ default_args = {
 }
 
 dag = DAG(
-    'postgres_to_bigquery_orders',
+    'postgres_to_bigquery_orders_abdullah',
     default_args=default_args,
     schedule_interval='@daily',
     catchup=False,
@@ -39,8 +39,7 @@ upload_task = GCSUploadFileOperator(
     task_id='upload_to_gcs',
     bucket_name=GCS_BUCKET,
     object_name=GCS_PATH,
-    filename='/tmp/public.orders.csv',
-    gcp_conn_id=GCP_CONN_ID,
+    filename='/orders-abdullah-adel/public.orders.csv',
     dag=dag,
 )
 
@@ -60,7 +59,6 @@ load_to_bq_task = BigQueryInsertJobOperator(
             "autodetect": True,
         }
     },
-    gcp_conn_id=GCP_CONN_ID,
     dag=dag,
 )
 
