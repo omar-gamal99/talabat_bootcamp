@@ -14,7 +14,7 @@ default_args = {
 }
 
 with DAG(
-    'Postgress to BQ',
+    'Postgress to BQ aya-hany',
     default_args=default_args,
     description='Airflow DAG for Postgres to BigQuery ETL',
 ) as postgress_bq_etl :
@@ -35,7 +35,7 @@ with DAG(
         task_id="bq_load_csv",
         bucket='talabat-labs-postgres-to-gcs',
         source_objects=['orders-aya-hany.csv'],
-        source_format="CSV"
+        source_format="CSV",
         destination_project_dataset_table=f"{talabat-labs-3927}.{landing}.{orders-aya-hany}",
         # schema_fields=[
         #     {"name": "id", "type": "STRING", "mode": "REQUIRED"},
