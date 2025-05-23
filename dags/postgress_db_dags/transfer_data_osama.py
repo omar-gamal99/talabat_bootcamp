@@ -25,9 +25,9 @@ with DAG(
     # Step 2: Load from GCS to BigQuery
     load_to_bq = GCSToBigQueryOperator(
         task_id='load_orders_to_bigquery',
-        bucket='your-gcs-bucket-name',  # same bucket
+        bucket='talabat-labs-postgres-to-gcs', 
         source_objects=['orders/orders_data_{{ ds_nodash }}.csv'],
-        destination_project_dataset_table='talabat-labs-3927.landing.orders',
+        destination_project_dataset_table='talabat-labs-3927.landing.orders_Osama',
         source_format='CSV',
         skip_leading_rows=1,
         field_delimiter=',',
