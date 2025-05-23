@@ -10,7 +10,7 @@ with DAG(
     catchup=False
 ) as dag:
 
-    # Step 1: Extract orders from Postgres to GCS as CSV file
+    # Step 1: Extract orders from Postgres to GCS as CSV files
     extract_to_gcs = SQLToGCSOperator(
         task_id='extract_orders_to_gcs',
         sql="SELECT * FROM public.orders",
