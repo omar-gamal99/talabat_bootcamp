@@ -32,14 +32,13 @@ BQ_BUCKET = 'talabat-labs-postgres-to-gcs'
 PG_CONN_ID = "postgres_connection_islamsayed" # Defined in airflow connection
 PG_SCHEMA = "public"
 PG_TABLE1 = "orders"
-JSON_FILENAME1 = 'orders_islam' + datetime.now().strftime('%Y-%m-%d')
 
 ## Task to transfer data from PostgreSQL to GCS
 postgres_to_gcs = PostgresToGCSOperator(
     task_id = 'postgres_to_gcs',
     sql = f'SELECT * FROM "{PG_SCHEMA}"."{PG_TABLE1}";',
     bucket = BQ_BUCKET,
-    filename = f'{JSON_FILENAME1}.csv',  # Specify the filename for the exported data
+    filename='orders_islam_{{ ds }}.csv',
     export_format = 'CSV',  # You can change the export format as needed
     postgres_conn_id = PG_CONN_ID,  # Set your PostgreSQL connection ID
     field_delimiter=',',  # Optional, specify field delimiter for CSV
@@ -53,7 +52,7 @@ bq_stock_load_csv = GCSToBigQueryOperator(
     bucket=BQ_BUCKET,
     destination_project_dataset_table=f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_TABLE1}",
     source_format="CSV",
-    source_objects=[f'{JSON_FILENAME1}.csv'],  # Specify the GCS object name
+    ource_objects=['orders_islam_{{ ds }}.csv'],
     create_disposition='CREATE_IF_NEEDED',  # You can change this if needed
     write_disposition="WRITE_TRUNCATE", # You can change this if needed
     dag = dag,
