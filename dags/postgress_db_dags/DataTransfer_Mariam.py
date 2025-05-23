@@ -11,7 +11,7 @@ SOURCE_TABLE_NAME = 'orders'
 FILE_FORMAT = 'csv'
 
 with DAG(
-    dag_id='postgres_to_gcs_export',
+    dag_id='postgres_to_gcs_export_Mariam',
     default_args=default_args,
     schedule_interval=None,  
     start_date=days_ago(1),
@@ -21,7 +21,7 @@ with DAG(
 
     postgres_to_gcs_task = PostgresToGCSOperator(
         task_id='export_postgres_to_gcs',
-        postgres_conn_id='postgres_default',  # Must match your Airflow connection ID
+        postgres_conn_id='postgres_mariam',  
         sql=f'SELECT * FROM {SOURCE_TABLE_NAME};',
         bucket='talabat-labs-postgres-to-gcs',
         filename=f'postgres-export/{SOURCE_TABLE_NAME}.{FILE_FORMAT}',
