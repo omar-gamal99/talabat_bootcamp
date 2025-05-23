@@ -19,7 +19,7 @@ with DAG(
 
     # Step 1: Export from Postgres to GCS
     export_postgres_to_gcs = PostgresToGCSOperator(
-        task_id='export_postgres_to_gcs',
+        task_id='export_postgres_to_gcs_john',
         postgres_conn_id=POSTGRES_CONN_ID,
         sql='SELECT * FROM public.orders',
         bucket=BUCKET_NAME,
@@ -29,7 +29,7 @@ with DAG(
 
     # Step 2: Load from GCS to BigQuery
     load_gcs_to_bq = GCSToBigQueryOperator(
-        task_id='load_gcs_to_bq',
+        task_id='load_gcs_to_bq_john',
         bucket=BUCKET_NAME,
         source_objects=[GCS_FILE_PATH],
         destination_project_dataset_table=BQ_TABLE,
