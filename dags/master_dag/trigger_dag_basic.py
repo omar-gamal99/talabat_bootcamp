@@ -26,9 +26,9 @@ dag = DAG(
 )
 
 TriggerDagRunOperator(
-    task_id="orders_db_transfer_ziad",
+    task_id="trigger_orders_db_transfer_ziad",
     dag=dag,
-    trigger_dag_id="trigger_dag_id",
+    trigger_dag_id="orders_db_transfer_ziad",
     execution_date=ext_date,
     wait_for_completion=True,
     poke_interval=30,
