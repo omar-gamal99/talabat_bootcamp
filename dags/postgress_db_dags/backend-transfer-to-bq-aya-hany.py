@@ -36,7 +36,7 @@ with DAG(
         bucket='talabat-labs-postgres-to-gcs',
         source_objects=['orders-aya-hany.csv'],
         source_format="CSV",
-        destination_project_dataset_table=f"{talabat-labs-3927}.{landing}.{orders-aya-hany}",
+        destination_project_dataset_table=f"{'talabat-labs-3927'}.{'landing'}.{'orders-aya-hany'}",
         # schema_fields=[
         #     {"name": "id", "type": "STRING", "mode": "REQUIRED"},
         #     {"name": "ticker", "type": "STRING", "mode": "NULLABLE"},
