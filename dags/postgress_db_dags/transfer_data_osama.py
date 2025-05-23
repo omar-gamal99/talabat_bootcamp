@@ -1,27 +1,39 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.hooks.postgres_hook import PostgresHook
+from airflow.providers.google.cloud.transfers.sql_to_gcs import SQLToGCSOperator
+from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from datetime import datetime
-import pandas as pd
-
-# Extract orders table and save to CSV
-def extract_postgres_orders():
-    hook = PostgresHook(postgres_conn_id='postgres_osama')
-    sql = "SELECT * FROM public.orders"
-    df = hook.get_pandas_df(sql)
-
-    # Save the DataFrame to a CSV file
-    # 🪟 If you're on Windows, use a proper path like below:
-    df.to_csv('C:\\Users\\TKmind\\Desktop\\orders_data.csv', index=False)
 
 with DAG(
-    dag_id='extract_orders_from_postgres',
+    dag_id='postgres_to_gcs_to_bigquery',
     start_date=datetime(2024, 1, 1),
-    schedule_interval='@daily',
+    schedule_interval=None,
     catchup=False
 ) as dag:
 
-    extract_task = PythonOperator(
-        task_id='extract_orders_task',
-        python_callable=extract_postgres_orders
+    # Step 1: Extract orders from Postgres to GCS as CSV file
+    extract_to_gcs = SQLToGCSOperator(
+        task_id='extract_orders_to_gcs',
+        sql="SELECT * FROM public.orders",
+        bucket='talabat-labs-postgres-to-gcs',  
+        filename='orders/orders_data_{{ ds_nodash }}.csv',
+        export_format='CSV',
+        field_delimiter=',',
+        postgres_conn_id='postgres_osama',
+        gcp_conn_id='google_cloud_default'  
     )
+
+    # Step 2: Load from GCS to BigQuery
+    load_to_bq = GCSToBigQueryOperator(
+        task_id='load_orders_to_bigquery',
+        bucket='your-gcs-bucket-name',  # same bucket
+        source_objects=['orders/orders_data_{{ ds_nodash }}.csv'],
+        destination_project_dataset_table='talabat-labs-3927.landing.orders',
+        source_format='CSV',
+        skip_leading_rows=1,
+        field_delimiter=',',
+        write_disposition='WRITE_TRUNCATE',
+        autodetect=True,
+        gcp_conn_id='google_cloud_default'
+    )
+
+    extract_to_gcs >> load_to_bq
