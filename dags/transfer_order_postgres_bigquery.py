@@ -22,7 +22,7 @@ dag = DAG(
 GCS_BUCKET = 'talabat-labs-postgres-to-gcs'
 GCS_PATH = 'orders-abdullah-adel/orders.csv'
 BQ_DATASET = 'talabat-labs-3927.landing'
-BQ_TABLE = 'public.orders'
+BQ_TABLE = 'orders'
 
 def extract_orders():
     df = hook.get_pandas_df(sql='SELECT * FROM public.orders')
@@ -38,7 +38,7 @@ upload_task = LocalFilesystemToGCSOperator(
     task_id='upload_to_gcs',
     bucket_name=GCS_BUCKET,
     object_name=GCS_PATH,
-    filename='/orders-abdullah-adel/public.orders.csv',
+    filename='/orders-abdullah-adel/orders.csv',
     dag=dag,
 )
 
