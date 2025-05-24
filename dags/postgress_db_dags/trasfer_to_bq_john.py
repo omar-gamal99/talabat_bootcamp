@@ -13,7 +13,7 @@ with DAG(
 
     export_pg_to_gcs = PostgresToGCSOperator(
         task_id='export_pg_to_gcs_john',
-        postgres_conn_id='postgres_conn_john',  
+        postgres_conn_id='postgress-conn-john',  
         sql='SELECT * FROM public.orders;',
         bucket='talabat-labs-postgres-to-gcs',
         filename='exported_data_john/{{ ds_nodash }}.json',
