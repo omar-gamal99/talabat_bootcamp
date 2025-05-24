@@ -9,7 +9,6 @@ with DAG(
     'postgres_to_bigquery_hend',
     schedule_interval=None,
     start_date=datetime(2025,5,23),
-    retries=1,
     catchup=False,
     tags=["transfer"]
 
