@@ -26,7 +26,7 @@ with DAG(
         bucket='talabat-labs-postgres-to-gcs',
         source_objects=['postgres_data/postgres_orders_hend.json'],
         source_format='NEWLINE_DELIMITED_JSON',
-        destination_project_dataset_table='talabat_labs_3927.landing.orders_hend',
+        destination_project_dataset_table='talabat-labs-3927.landing.orders_hend',
         autodetect=True,
         write_disposition='WRITE_TRUNCATE'
     )
