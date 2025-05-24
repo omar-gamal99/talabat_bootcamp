@@ -4,7 +4,7 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from datetime import datetime
 
 # Constants (replace with your actual values)
-CONNECTION_ID = "Postgress_Connect_asmaa"
+CONNECTION_ID = "Postgres_Connect_asmaa"
 SQL_SELECT = "SELECT * FROM public.orders;"
 BUCKET_NAME = "talabat_labs_postgress_to_gcs"
 FILE_NAME = "orders_asmaa.json"
