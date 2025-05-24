@@ -42,4 +42,4 @@ with DAG(
     export_postgres_to_gcs >> load_gcs_to_bq
 
 
-# new comment 1
+# new comment 2
