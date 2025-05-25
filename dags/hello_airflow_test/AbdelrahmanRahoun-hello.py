@@ -7,7 +7,7 @@ def rahoun():
 #  ggs
 with DAG(
     dag_id = 'talabat-test',
-    start_date = datetime(2025-5-23),
+    start_date = datetime(2025,5,23),
     schedule = None ,
     tags = ['example']
 
