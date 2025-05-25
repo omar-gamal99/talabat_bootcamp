@@ -4,34 +4,33 @@ from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.exceptions import AirflowException
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 import pandas as pd
 import os
 import logging
 
-# Configuration
 BUCKET_NAME = 'talabat-labs-postgres-to-gcs'
 FILENAME = 'payments_john.csv'
 GCS_PATH = f'data/{FILENAME}'
 GCS_URI = f'gs://{BUCKET_NAME}/{GCS_PATH}'
-API_URL = 'https://payments-table-728470529083.europe-west1.run.app'
 
+API_URL = 'https://payments-table-728470529083.europe-west1.run.app'
 
 API_HEADERS = {
     'User-Agent': 'Airflow-ETL/1.0',
-    'Accept': 'application/json'
+    'Accept': 'text/csv'
 }
-API_TIMEOUT = 30
+API_TIMEOUT = 30 
 
 default_args = {
     'start_date': datetime(2025, 5, 23),
     'retries': 1,
-    'retry_delay': datetime.timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=5),
 }
 
 def extract_api_data(**kwargs):
-    """Extract data from API and save as CSV locally"""
+    """Extract CSV data from API and save locally"""
     try:
         logging.info(f"Making API request to: {API_URL}")
         
@@ -42,40 +41,38 @@ def extract_api_data(**kwargs):
         )
         response.raise_for_status()
         
-        data = response.json()
-        logging.info(f"Successfully retrieved {len(data)} records from API")
+        csv_content = response.text
+        logging.info(f"Successfully retrieved CSV data from API ({len(csv_content)} characters)")
         
-
-        if isinstance(data, list):
-            df = pd.DataFrame(data)
-        elif isinstance(data, dict):
-
-            if 'data' in data:
-                df = pd.DataFrame(data['data'])
-            elif 'results' in data:
-                df = pd.DataFrame(data['results'])
-            else:
-                df = pd.DataFrame([data])
-        else:
-            raise AirflowException(f"Unexpected data format from API: {type(data)}")
+        if not csv_content.strip():
+            raise AirflowException("API returned empty CSV data")
         
-        if df.empty:
-            raise AirflowException("No data received from API")
-        
-        logging.info(f"DataFrame created with shape: {df.shape}")
-        logging.info(f"Columns: {list(df.columns)}")
-        
- 
         local_path = f'/tmp/{FILENAME}'
-        df.to_csv(local_path, index=False)
+        with open(local_path, 'w', encoding='utf-8') as f:
+            f.write(csv_content)
+        
+        try:
+            df = pd.read_csv(local_path)
+            record_count = len(df)
+            logging.info(f"CSV file saved with {record_count} records and {len(df.columns)} columns")
+            logging.info(f"Columns: {list(df.columns)}")
+            
+            if df.empty:
+                raise AirflowException("CSV file contains no data rows")
+                
+        except pd.errors.EmptyDataError:
+            raise AirflowException("CSV file is empty or has no valid data")
+        except Exception as e:
+            raise AirflowException(f"Error reading CSV file: {str(e)}")
+        
         logging.info(f"Data saved to local file: {local_path}")
         
-
+        # Push paths to XCom for next tasks
         kwargs['ti'].xcom_push(key='local_path', value=local_path)
         kwargs['ti'].xcom_push(key='gcs_path', value=GCS_PATH)
-        kwargs['ti'].xcom_push(key='record_count', value=len(df))
+        kwargs['ti'].xcom_push(key='record_count', value=record_count)
         
-        return f"Successfully extracted {len(df)} records"
+        return f"Successfully extracted {record_count} records from CSV API"
         
     except requests.exceptions.ConnectionError as e:
         logging.error(f"Connection error: {str(e)}")
@@ -93,10 +90,6 @@ def extract_api_data(**kwargs):
         logging.error(f"Request error: {str(e)}")
         raise AirflowException(f"API request failed: {str(e)}")
     
-    except pd.errors.EmptyDataError:
-        logging.error("No data to parse from API response")
-        raise AirflowException("API returned empty data")
-    
     except Exception as e:
         logging.error(f"Unexpected error in extract_api_data: {str(e)}")
         raise AirflowException(f"Failed to extract data from API: {str(e)}")
@@ -104,7 +97,6 @@ def extract_api_data(**kwargs):
 def upload_to_gcs(**kwargs):
     """Upload CSV file to Google Cloud Storage"""
     try:
-        # Get paths from previous task
         local_path = kwargs['ti'].xcom_pull(key='local_path')
         gcs_path = kwargs['ti'].xcom_pull(key='gcs_path')
         record_count = kwargs['ti'].xcom_pull(key='record_count')
@@ -114,7 +106,6 @@ def upload_to_gcs(**kwargs):
         
         logging.info(f"Uploading {local_path} to gs://{BUCKET_NAME}/{gcs_path}")
         
-
         hook = GCSHook(gcp_conn_id='google_cloud_default')
         hook.upload(
             bucket_name=BUCKET_NAME, 
@@ -124,7 +115,6 @@ def upload_to_gcs(**kwargs):
         
         logging.info(f"Successfully uploaded {record_count} records to GCS")
         
-
         try:
             os.remove(local_path)
             logging.info(f"Cleaned up local file: {local_path}")
@@ -137,16 +127,14 @@ def upload_to_gcs(**kwargs):
         logging.error(f"Failed to upload to GCS: {str(e)}")
         raise AirflowException(f"GCS upload failed: {str(e)}")
 
-
 with DAG(
     'api_to_bigquery_john',
     default_args=default_args,
     description='Extract data from API, upload to GCS, and load to BigQuery',
-    schedule_interval=None,
+    schedule_interval=None,  # Manual trigger only
     catchup=False,
     tags=['api', 'gcs', 'bigquery', 'etl'],
 ) as dag:
-
 
     extract_task = PythonOperator(
         task_id='extract_api_data',
@@ -157,7 +145,6 @@ with DAG(
         """,
     )
 
- 
     upload_task = PythonOperator(
         task_id='upload_to_gcs',
         python_callable=upload_to_gcs,
@@ -166,7 +153,6 @@ with DAG(
         This task uploads the CSV file to Google Cloud Storage.
         """,
     )
-
 
     load_task = GCSToBigQueryOperator(
         task_id='load_api_csv_to_bq_john',
@@ -185,5 +171,4 @@ with DAG(
         """,
     )
 
-    # Define task dependencies
     extract_task >> upload_task >> load_task
