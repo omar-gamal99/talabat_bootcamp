@@ -1,52 +1,74 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators.gcs import GCSHook
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
-from airflow.providers.google.cloud.hooks.gcs import GCSHook
+
 from datetime import datetime
 import requests
+import pandas as pd
+import os
 
-def fetch_and_upload_to_gcs(**context):
-    url = "https://payments-table-728470529083.europe-west1.run.app"
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch data. Status: {response.status_code}")
-    
-    file_content = response.content
-    filename = f"payments_data_john/{context['ds_nodash']}.csv"
+BUCKET_NAME = 'talabat-labs-postgres-to-gcs'
+FILENAME = 'payments_john.csv'
+GCS_PATH = f'data/{FILENAME}'
+GCS_URI = f'gs://{BUCKET_NAME}/{GCS_PATH}'
+API_URL = 'https://your.api.url/endpoint'  # replace with your actual API
 
-    hook = GCSHook(gcp_conn_id='google_cloud_default')
-    hook.upload(
-        bucket_name='talabat-labs-postgres-to-gcs',
-        object_name=filename,
-        data=file_content,
-        mime_type='text/csv'
-    )
-    context['ti'].xcom_push(key='gcs_file', value=filename)
+default_args = {
+    'start_date': datetime(2025, 5, 23),
+    'retries': 1,
+}
 
 with DAG(
-    dag_id="api_to_bigquery_john",
-    start_date=datetime(2023, 1, 1),
+    'api_to_bigquery_john',
+    default_args=default_args,
     schedule_interval=None,
     catchup=False,
-    tags=["api", "gcs", "bigquery"]
 ) as dag:
 
-    fetch_csv_to_gcs = PythonOperator(
-        task_id='fetch_csv_and_upload_john',
-        python_callable=fetch_and_upload_to_gcs,
-        provide_context=True
+    def extract_api_data(**kwargs):
+        response = requests.get(API_URL)
+        response.raise_for_status()
+        data = response.json()
+        df = pd.DataFrame(data)
+
+        local_path = f'/tmp/{FILENAME}'
+        df.to_csv(local_path, index=False)
+
+        # Push the path to XCom
+        kwargs['ti'].xcom_push(key='local_path', value=local_path)
+        kwargs['ti'].xcom_push(key='gcs_path', value=GCS_PATH)
+
+    def upload_to_gcs(**kwargs):
+        local_path = kwargs['ti'].xcom_pull(key='local_path')
+        gcs_path = kwargs['ti'].xcom_pull(key='gcs_path')
+        hook = GCSHook(gcp_conn_id='google_cloud_default')
+        hook.upload(bucket_name=BUCKET_NAME, object_name=gcs_path, filename=local_path)
+
+    extract_task = PythonOperator(
+        task_id='extract_api_data',
+        python_callable=extract_api_data,
+        provide_context=True,
     )
 
-    load_to_bq = GCSToBigQueryOperator(
+    upload_task = PythonOperator(
+        task_id='upload_to_gcs',
+        python_callable=upload_to_gcs,
+        provide_context=True,
+    )
+
+    load_task = GCSToBigQueryOperator(
         task_id='load_api_csv_to_bq_john',
-        bucket='talabat-labs-postgres-to-gcs',
-        source_objects=["{{ task_instance.xcom_pull(task_ids='fetch_csv_and_upload', key='gcs_file') }}"],
+        bucket=BUCKET_NAME,
+        source_objects=[GCS_PATH],
         destination_project_dataset_table='talabat-labs-3927.landing.payments_john',
         source_format='CSV',
+        skip_leading_rows=1,
         write_disposition='WRITE_TRUNCATE',
         create_disposition='CREATE_IF_NEEDED',
-        skip_leading_rows=1,
-        autodetect=True
+        autodetect=True,
+        gcp_conn_id='google_cloud_default',
     )
 
-    fetch_csv_to_gcs >> load_to_bq
+    extract_task >> upload_task >> load_task
+
