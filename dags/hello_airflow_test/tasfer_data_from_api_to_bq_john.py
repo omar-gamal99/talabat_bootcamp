@@ -65,8 +65,10 @@ with DAG(
         source_format='CSV',
         skip_leading_rows=1,
         write_disposition='WRITE_TRUNCATE',
+        create_disposition='CREATE_IF_NEEDED',
         autodetect=True,
         gcp_conn_id='google_cloud_default',
     )
 
     extract_task >> upload_task >> load_task
+
