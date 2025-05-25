@@ -3,7 +3,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import requests
 import pandas as pd
 import os
@@ -16,8 +16,7 @@ API_URL = 'https://payments-table-728470529083.europe-west1.run.app'
 
 default_args = {
     'start_date': datetime(2025, 5, 23),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 0,
 }
 
 def extract_api_data(**kwargs):
