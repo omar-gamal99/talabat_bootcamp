@@ -8,7 +8,7 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import (
 
 POSTGRES_CONN_ID = "Mark_Eskander"
 GCS_BUCKET = "talabat-labs-postgres-to-gcs"
-GCS_FILENAME = "Mark-Eskander"
+GCS_FILENAME = "Mark_Eskander"
 BIGQUERY_DATASET = "talabat-labs-3927.landing"
 BIGQUERY_TABLE = "mark-orders"
 
