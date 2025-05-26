@@ -30,7 +30,7 @@ dag = DAG(
     "orders_db_transfer_ziad",
     default_args=default_args,
     description="Transfer data from orders PostgreSQL to GCS and load into BigQuery",
-    schedule_interval=None
+    schedule_interval=None,
     catchup=False,
     max_active_runs=1,
     tags=["postgres", "bigquery", "etl"],
