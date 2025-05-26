@@ -4,11 +4,11 @@ from datetime import datetime
 
 
 def greet():
-    print("Hello from Airflosw!")
+    print("Hello Airflow!")
 
 
 with DAG(
-    dag_id="example_airflow_dag_ziad_v2",
+    dag_id="example_airflow_dag_mariam_mahmoud",
     schedule=None,
     start_date=datetime(2025, 5, 15),
     catchup=False,
