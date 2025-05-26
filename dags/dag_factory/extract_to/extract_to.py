@@ -10,8 +10,8 @@ from airflow.providers.google.cloud.operators.gcs import GCSDeleteObjectsOperato
 
 
 POSTGRES_CONN_ID = "postgres_ahmedmarzouk"
-GCS_BUCKET = "ahmed-marzouk-exported-data"
-GCS_FILENAME = "orders_{{ ds }}.json"  
+GCS_BUCKET = "talabat-labs-postgres-to-gcs"
+GCS_FILENAME = "orders-ahmedmarzouk.json"  
 BIGQUERY_DATASET = "talabat-labs-3927.landing"
 BIGQUERY_TABLE = "orders__ahmed_marzouk"
 
