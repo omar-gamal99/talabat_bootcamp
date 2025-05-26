@@ -47,8 +47,8 @@ task = PythonOperator(
 
 load_to_bigquery = GCSToBigQueryOperator(
     task_id="load_to_bigquery",
-    source_bucket=bucket_name,
-    source_object=file_name,
+    bucket=bucket_name,
+    source_objects=file_name,
     destination_project_dataset_table="talabat-labs-3927.landing.Mark_Eskander_Payments",
     autodetect=True,
     source_format="JSON",
