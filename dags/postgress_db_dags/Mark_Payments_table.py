@@ -39,7 +39,7 @@ dag =  DAG(
     catchup=False,
     tags=["example"],
 )
-task = pythonOperator(
+task = PythonOperator(
     task_id="get_response_save_to_gcs",
     python_callable=get_response,
     dag=dag)
