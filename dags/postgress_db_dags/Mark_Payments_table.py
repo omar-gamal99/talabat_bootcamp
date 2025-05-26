@@ -16,7 +16,7 @@ def get_response():
 
 # get the response and turn it into json
     response = requests.get(API_URL)
-    data_csv = response.text()
+    data_csv = response.text
 
 
 # upload the response to gcs
