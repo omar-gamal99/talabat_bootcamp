@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 import requests
-import json
+
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import (
     GCSToBigQueryOperator,
 )
@@ -16,7 +16,7 @@ def get_response():
 
 # get the response and turn it into json
     response = requests.get(API_URL)
-    data = response.json()
+    data_csv = response.text()
 
 
 # upload the response to gcs
@@ -24,8 +24,8 @@ def get_response():
     gcs_hook.upload(
     bucket_name=bucket_name,
     object_name=file_name,
-    data=json.dumps(data),
-    mime_type='application/json'
+    data=data_csv,
+    mime_type='text/csv'
 )
 default_args = {
     "retries": 1,
