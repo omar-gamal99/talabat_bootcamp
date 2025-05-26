@@ -10,9 +10,11 @@ from airflow.providers.google.cloud.operators.gcs import GCSDeleteObjectsOperato
 
 
 POSTGRES_CONN_ID = "postgres_ahmedmarzouk"
-GCS_BUCKET = "talabat-labs-postgres-to-gcs"
-GCS_FILENAME = "ziad/orders_{{ ds }}.json"  
+GCS_BUCKET = "Ahmed_marzouk_exported_data"
+GCS_FILENAME = "orders_{{ ds }}.json"  
 BIGQUERY_DATASET = "talabat-labs-3927.landing"
+BIGQUERY_TABLE = "orders@ahmed_marzouk"
+
 
 default_args = {
     "owner": "Ahmed marzouk",
@@ -63,13 +65,7 @@ load_gcs_to_bigquery = GCSToBigQueryOperator(
     dag=dag,
 )
 
-# Task 3: Clean up GCS files (optional)
-cleanup_gcs = GCSDeleteObjectsOperator(
-    task_id="cleanup_gcs_files",
-    bucket_name=GCS_BUCKET,
-    objects=[GCS_FILENAME],
-    dag=dag,
-)
 
 
-transfer_postgres_to_gcs >> load_gcs_to_bigquery >> cleanup_gcs
+
+transfer_postgres_to_gcs >> load_gcs_to_bigquery 
