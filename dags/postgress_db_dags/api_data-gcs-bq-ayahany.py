@@ -4,7 +4,7 @@ import io
 from datetime import timedelta, datetime
 from google.cloud import storage
 from airflow import DAG
-from airflow.providers.google.cloud.transfers.postgres_to_gcs import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 
 POSTGRES_CONN_ID = "postgress-conn-aya-hany"
