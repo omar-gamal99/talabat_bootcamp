@@ -35,7 +35,7 @@ with DAG(
     bq_load_csv = GCSToBigQueryOperator(
         task_id="bq_load_csv",
         bucket='talabat-labs-postgres-to-gcs',
-        source_objects=['orders-aya-hany.csv'],
+        source_objects=['orders-aya-hany'],
         source_format="CSV",
         destination_project_dataset_table=f"{'talabat-labs-3927'}.{'landing'}.{'orders-aya-hany'}",
         write_disposition="WRITE_TRUNCATE", 
