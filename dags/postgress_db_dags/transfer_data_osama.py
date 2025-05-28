@@ -1,16 +1,16 @@
 from airflow import DAG
-from airflow.providers.google.cloud.transfers.sql_to_gcs import SQLToGCSOperator
+from airflow.providers.postgres.transfers.postgres_to_gcs import PostgresToGCSOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from datetime import datetime
 
 with DAG(
     dag_id='postgres_to_gcs_to_bigquery',
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2024, 8, 8),
     schedule_interval=None,
     catchup=False
 ) as dag:
 
-    # Step 1: Extract orders from Postgres to GCS as CSV files
+    # Step 1: Extract orders from Postgres to GCS
     extract_to_gcs = PostgresToGCSOperator(
         task_id='extract_orders_to_gcs',
         sql="SELECT * FROM public.orders",
