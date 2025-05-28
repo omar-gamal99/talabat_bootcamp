@@ -56,7 +56,7 @@ with DAG(
         bucket=GCS_BUCKET_NAME,
         source_objects=[GCS_OBJECT_NAME],
         destination_project_dataset_table=f"{BQ_DATASET}.{BQ_TABLE}",
-        schema_autodetect=True,
+        autodetect=True,
         write_disposition="WRITE_TRUNCATE",
         source_format="CSV",
         skip_leading_rows=1
