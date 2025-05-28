@@ -44,7 +44,7 @@ with DAG(
     )
     gcs_to_bq_task = GCSToBigQueryOperator(
         task_id="gcs_to_bq",
-        bucket= GCS_BUCKET',
+        bucket= GCS_BUCKET,
         source_objects=[GCS_OBJECT],
         source_format="CSV",
         destination_project_dataset_table=f"{BIGQUERY_DATASET}.{BIGQUERY_TABLE}",
