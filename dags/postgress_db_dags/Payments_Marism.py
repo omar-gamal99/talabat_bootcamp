@@ -5,28 +5,25 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from google.cloud import storage
 import requests
 import pandas as pd
-import os
-
+from io import StringIO
 
 API_URL = "https://payments-table-728470529083.europe-west1.run.app"
-
 GCS_BUCKET = 'talabat-labs-postgres-to-gcs'
 GCS_FILENAME = 'api-export/payments.csv'
 BQ_DATASET = 'talabat-labs-3927.payments'
 BQ_TABLE = 'mariam_payments'
 
 def fetch_and_upload_to_gcs():
-    # --- Step 1: Fetch data from API ---
     response = requests.get(API_URL)
     response.raise_for_status()
-    data = response.json()
+    
+    # Assume API returns CSV
+    csv_content = response.text
+    df = pd.read_csv(StringIO(csv_content))
 
-    # --- Step 2: Save to CSV locally ---
-    df = pd.DataFrame(data)
     local_file = '/tmp/payments.csv'
     df.to_csv(local_file, index=False)
 
-    # --- Step 3: Upload CSV to GCS ---
     client = storage.Client()
     bucket = client.bucket(GCS_BUCKET)
     blob = bucket.blob(GCS_FILENAME)
