@@ -5,7 +5,7 @@ from airflow import DAG
 from datetime import datetime, timedelta
 from google.cloud import storage
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.operators.bigquery import GCSToBigQueryOperator
+from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 
 default_args = {
     'owner': 'elham',
