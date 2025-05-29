@@ -39,7 +39,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='api_to_bigquery_payments_simple',
+    dag_id='api_to_bigquery_payments_youmna',
     start_date=datetime(2025, 1, 1),
     schedule_interval=None,
     default_args=default_args,
