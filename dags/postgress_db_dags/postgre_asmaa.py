@@ -4,12 +4,12 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from datetime import datetime
 
 # Constants (replace with your actual values)
-CONNECTION_ID = "Postgres_Connect_asmaa"
+CONNECTION_ID = "db_postgres_asmaa"
 SQL_SELECT = "SELECT * FROM public.orders;"
 BUCKET_NAME = "talabat-labs-postgres-to-gcs"
 FILE_NAME = "orders_asmaa.json"
 BQ_DATASET = "talabat-labs-3927.landing"
-BQ_TABLE = "bq_asmaa"
+BQ_TABLE = "bq_orders_asmaa"
 
 with DAG(
     dag_id="postgres_to_bigquery_pipeline",
