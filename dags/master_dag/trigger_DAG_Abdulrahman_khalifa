@@ -1,0 +1,21 @@
+from airflow import DAG
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from datetime import datetime
+
+default_args = {
+    'start_date': datetime(2024, 1, 1),
+}
+
+with DAG(
+    dag_id='trigger_pg_to_bq_once',
+    default_args=default_args,
+    schedule_interval=None,  
+    catchup=False,
+    tags=['trigger', 'manual']
+) as dag:
+
+    trigger_dag = TriggerDagRunOperator(
+        task_id='trigger_pg_to_bq',
+        trigger_dag_id='pg_to_bq_via_gcs_AKhalifa',
+        wait_for_completion=True
+    )
