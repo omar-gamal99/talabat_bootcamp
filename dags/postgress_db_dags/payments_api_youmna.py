@@ -5,38 +5,45 @@ from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from datetime import datetime
 import requests
 import json
-
+import re
 
 API_URL = 'https://payments-table-728470529083.europe-west1.run.app'
 GCS_BUCKET = 'talabat-labs-payment-data'
 GCS_FILENAME = 'payments/{{ ds_nodash }}.json'
 BQ_TABLE = 'talabat-labs-3927.payments.payments_youmna'
 
+def generate_filename(**context):
+    filename = f"payments/{context['ds_nodash']}.json"
+    return filename
+
 def fetch_data_and_upload_to_gcs(**context):
     response = requests.get(API_URL)
-    response.raise_for_status()  
+    response.raise_for_status()
+
+    raw_text = response.text.strip()
+
+
     try:
-        data = json.loads(response.text)
+        # Extract JSON objects using regex if not wrapped in array or NDJSON
+        json_objects = re.findall(r'\{.*?\}(?=\{|\Z)', raw_text.replace('\n', ''))
+        parsed = [json.loads(obj) for obj in json_objects]
     except json.JSONDecodeError:
         raise ValueError("The API response is not in valid JSON format")
 
-    data_string = '\n'.join([json.dumps(row) for row in data])
+    # Convert to NDJSON format
+    data_string = '\n'.join([json.dumps(obj) for obj in parsed])
 
     gcs_hook = GCSHook()
     gcs_hook.upload(
-        bucket_name=GCS_BUCKET, 
+        bucket_name=GCS_BUCKET.strip(),
         object_name=context['ti'].xcom_pull(task_ids='generate_filename'),
         data=data_string,
         mime_type='application/json'
     )
 
-def generate_filename(**context):
-    filename = f"payments/{context['ds_nodash']}.json"
-    return filename
-
 with DAG(
     dag_id='api_to_bigquery_payments_youmna',
-    start_date=datetime(2023, 1, 1),
+    start_date=datetime(2025, 1, 1),
     schedule_interval=None,
     catchup=False
 ) as dag:
