@@ -8,20 +8,23 @@ import json
 
 
 API_URL = 'https://payments-table-728470529083.europe-west1.run.app'
-GCS_BUCKET = ' talabat-labs-payment-data'
+GCS_BUCKET = 'talabat-labs-payment-data'
 GCS_FILENAME = 'payments/{{ ds_nodash }}.json'
 BQ_TABLE = 'talabat-labs-3927.payments.payments_youmna'
 
 def fetch_data_and_upload_to_gcs(**context):
     response = requests.get(API_URL)
-    response.raise_for_status()  # Raise error if API fails
-    
-    data = response.json()
-    data_string = '\n'.join([json.dumps(row) for row in data])  # NDJSON format
+    response.raise_for_status()  
+    try:
+        data = json.loads(response.text)
+    except json.JSONDecodeError:
+        raise ValueError("The API response is not in valid JSON format")
+
+    data_string = '\n'.join([json.dumps(row) for row in data])
 
     gcs_hook = GCSHook()
     gcs_hook.upload(
-        bucket_name=GCS_BUCKET,
+        bucket_name=GCS_BUCKET, 
         object_name=context['ti'].xcom_pull(task_ids='generate_filename'),
         data=data_string,
         mime_type='application/json'
