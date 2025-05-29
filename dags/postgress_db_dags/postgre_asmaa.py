@@ -12,12 +12,12 @@ BQ_DATASET = "talabat-labs-3927.landing"
 BQ_TABLE = "bq_orders_asmaa"
 
 with DAG(
-    dag_id="postgres_to_bigquery_pipeline",
+    dag_id="postgres_to_bq_asmaa",
     start_date=datetime(2025, 5, 28),  
     schedule_interval="@once",
     catchup=False,
     description="Export from Postgres to GCS then load into BigQuery",
-    tags=["postgres", "gcs", "bigquery"],  # optional helpful tags
+    tags=["postgres", "gcs", "bigquery"],  
 ) as dag:
 
     postgres_to_gcs = PostgresToGCSOperator(
