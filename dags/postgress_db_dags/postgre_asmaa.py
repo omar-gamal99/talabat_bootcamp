@@ -3,7 +3,7 @@ from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToG
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from datetime import datetime
 
-# Constants (replace with your actual values)
+# Constants 
 CONNECTION_ID = "db_postgres_asmaa"
 SQL_SELECT = "SELECT * FROM public.orders;"
 BUCKET_NAME = "talabat-labs-postgres-to-gcs"
@@ -37,7 +37,7 @@ with DAG(
         destination_project_dataset_table=f"{BQ_DATASET}.{BQ_TABLE}",
         skip_leading_rows=1,
         source_format="NEWLINE_DELIMITED_JSON",
-        write_disposition="WRITE_TRUNCATE",  # or "WRITE_APPEND"
+        write_disposition="WRITE_TRUNCATE",  
         autodetect=True,
     )
 
