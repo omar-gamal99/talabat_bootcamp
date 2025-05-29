@@ -16,6 +16,6 @@ with DAG(
 
     trigger_dag = TriggerDagRunOperator(
         task_id='trigger_pg_to_bq',
-        trigger_dag_id='pg_to_bq_via_gcs_AKhalifa',
+        trigger_dag_id='orders_db_transfer_ziad',
         wait_for_completion=True
     )
