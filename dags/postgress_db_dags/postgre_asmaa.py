@@ -6,7 +6,7 @@ from datetime import datetime
 # Constants (replace with your actual values)
 CONNECTION_ID = "Postgres_Connect_asmaa"
 SQL_SELECT = "SELECT * FROM public.orders;"
-BUCKET_NAME = "talabat_labs_postgress_to_gcs"
+BUCKET_NAME = "talabat_labs_postgres_to_gcs"
 FILE_NAME = "orders_asmaa.json"
 BQ_DATASET = "talabat-labs-3927.landing"
 BQ_TABLE = "bq_asmaa"

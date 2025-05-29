@@ -9,10 +9,10 @@ import pandas as pd
 import os
 from io import StringIO
 
-# CONFIG
+# CONFIG#
 API_URL = "https://payments-table-728470529083.europe-west1.run.app"
-GCS_BUCKET_NAME = "talabat_labs_postgress_to_gcs"
-GCS_OBJECT_NAME = "talabat_labs_postgress_to_gcs/payments_bq.csv"
+GCS_BUCKET_NAME = "talabat_labs_postgres_to_gcs"
+GCS_OBJECT_NAME = "talabat_labs_postgres_to_gcs/payments_bq.csv"
 BQ_DATASET = "talabat-labs-3927.landing"
 BQ_TABLE = "source_api_payments_table_asmaa"
 LOCAL_TMP_FILE = "/tmp/payments_asmaa.csv"
