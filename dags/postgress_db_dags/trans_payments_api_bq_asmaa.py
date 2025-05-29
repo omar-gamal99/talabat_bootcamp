@@ -7,6 +7,7 @@ from datetime import datetime
 import requests
 import pandas as pd
 import os
+from io import StringIO
 
 # CONFIG
 API_URL = "https://payments-table-728470529083.europe-west1.run.app"
@@ -32,24 +33,18 @@ with DAG(
         response = requests.get(API_URL)
         
         # Log response content to debug
-        print("API raw response:", response.text[:500])  # log the first 500 chars
+        print("API raw response (first 500 characters):", response.text[:500])
         
         try:
-            data = response.json()  # Try to parse JSON
+            # Read CSV content from API response
+            df = pd.read_csv(StringIO(response.text))
         except Exception as e:
-            raise ValueError(f"API did not return valid JSON: {e}\nRaw content: {response.text[:500]}")
-
-        # Convert JSON to DataFrame
-        if isinstance(data, list):
-            df = pd.DataFrame(data)
-        elif isinstance(data, dict):
-            df = pd.DataFrame([data])
-        else:
-            raise ValueError("Unexpected JSON format from API")
-
-        # Save to CSV and upload
+            raise ValueError(f"Failed to parse CSV from API: {e}\nRaw content: {response.text[:500]}")
+        
+        # Save DataFrame to CSV
         df.to_csv(LOCAL_TMP_FILE, index=False)
 
+        # Upload to GCS
         gcs_hook = GCSHook()
         gcs_hook.upload(
             bucket_name=GCS_BUCKET_NAME,
@@ -57,6 +52,7 @@ with DAG(
             filename=LOCAL_TMP_FILE
         )
 
+        # Clean up
         os.remove(LOCAL_TMP_FILE)
 
     extract_task = PythonOperator(
