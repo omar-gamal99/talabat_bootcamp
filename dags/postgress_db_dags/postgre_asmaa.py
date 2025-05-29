@@ -6,14 +6,14 @@ from datetime import datetime
 # Constants (replace with your actual values)
 CONNECTION_ID = "Postgres_Connect_asmaa"
 SQL_SELECT = "SELECT * FROM public.orders;"
-BUCKET_NAME = "talabat_labs_postgres_to_gcs"
+BUCKET_NAME = "talabat-labs-postgres-to-gcs"
 FILE_NAME = "orders_asmaa.json"
 BQ_DATASET = "talabat-labs-3927.landing"
 BQ_TABLE = "bq_asmaa"
 
 with DAG(
     dag_id="postgres_to_bigquery_pipeline",
-    start_date=datetime(2025, 5, 23),
+    start_date=datetime(2025, 5, 28),
     schedule_interval="@once",
     catchup=False,
     description="Export from Postgres to GCS then load into BigQuery",
