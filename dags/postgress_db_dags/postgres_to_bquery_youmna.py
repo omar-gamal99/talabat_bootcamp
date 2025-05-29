@@ -14,7 +14,7 @@ with DAG(
         postgres_conn_id='postgres_conn_youmna',
         sql='SELECT * FROM public.orders;',
         bucket='talabat-labs-postgres-to-gcs',
-        filename='exported_data_youmna/{{ ds_nodash }}.json',
+        filename='youmna/{{ ds_nodash }}.json',
         export_format='json'
     )
      load_to_bq = GCSToBigQueryOperator(
