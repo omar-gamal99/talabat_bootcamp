@@ -3,11 +3,11 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
 
 default_args = {
-    'start_date': datetime(2024, 1, 1),
+    'start_date': datetime(2025, 5, 29),
 }
 
 with DAG(
-    dag_id='trigger_pg_to_bq_once',
+    dag_id='trigger_DAG_Abdulrahman_Khalifa',
     default_args=default_args,
     schedule_interval=None,  
     catchup=False,
