@@ -1,6 +1,5 @@
-import json
 import requests
-
+from io import BytesIO
 from airflow import DAG
 from datetime import datetime, timedelta
 from google.cloud import storage
@@ -16,23 +15,21 @@ default_args = {
 def extract_from_api_and_load_to_gcs(**context):
     api_url= 'https://payments-table-728470529083.europe-west1.run.app/'
     response= requests.get(api_url)
-    data= response.json()
+    
+    if response.status_code != 200:
+        raise Exception(f'Failed to fetch data from API: {response.status_code}')
 
-    # converting data to JSON string
-    json_data=json.dumps(data)
+    csv_data= response.content
 
     #uploading data to GCS
     bucket_name='talabat-labs-payment-data'
-    blob_path='data/payments_data_api_elham.json'
+    blob_path='data/payments_data_api_elham.csv'
     
     client= storage.Client()
     bucket= client.bucket(bucket_name)
     blob= bucket.blob(blob_path)
 
-    blob.uploading_data(
-        data=json_data,
-        content_type='application/json'
-    )
+    blob.upload_from_file(BytesIO(csv_data), content_type='text/csv')
 
     context['ti'].xcom_push(key='gcs_blob_path', value=blob_path)
 
@@ -53,9 +50,10 @@ with DAG(
     load_to_bigquery_task= GCSToBigQueryOperator(
         task_id= 'load_to_bigquery',
         bucket= 'talabat-labs-payment-data',
-        source_objects=['data/payments_data_api_elham.json'],
+        source_objects=['data/payments_data_api_elham.csv'],
         destination_project_dataset_table='talabat-labs-3927.payments.payments-elham',
-        source_format='newline_delimited_json',
+        source_format='CSV',
+        skip_leading_rows=1,
         write_disposition='WRITE_TRUNCATE',
         create_disposition='CREATE_IF_NEEDED',
         autodetect=True
