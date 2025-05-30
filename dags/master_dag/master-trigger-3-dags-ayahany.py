@@ -6,16 +6,12 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 POSTGRES_CONN_ID = "postgress-conn-aya-hany"
 ## Define the default arguments for the DAG
 default_args = {
-    'owner': 'ayah',
-    'start_date': datetime(2025, 5, 23),
-    'retries': 1,  
-    'retry_delay': timedelta(minutes=2), 
-
+    'owner': 'ayah'
 }
 dag_ids_to_trigger = ["customers_db_extract", "orders_db_extract", "products_db_extract"]
 
 with DAG(
-    dag_id="TRIGGER-3-DAGs",
+    dag_id="TRIGGER-3-DAGs-ayahany",
     default_args=default_args,
     tags=["master", "trigger"]
 ) as dag:
