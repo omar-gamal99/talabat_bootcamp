@@ -1,6 +1,11 @@
 from airflow import DAG 
 from airflow.operators.python import PythonOperator
 from datetime import datetime
+from airflow.hooks.postgres_hook import PostgresHook
+from google.cloud import storage
+import csv
+import os
+
 
 def rahoun():
     print('hello_rahoun')
@@ -18,4 +23,5 @@ with DAG(
     )
 
     hello_task    
+
 
