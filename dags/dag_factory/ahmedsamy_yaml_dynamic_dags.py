@@ -4,10 +4,14 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
-# 🔧 Manually specify the full paths to each YAML config
+#  Manually specify the full paths to each YAML config
 YAML_PATHS = [
-    "/opt/airflow/dags/custom_configs/dag_sales.yaml",
-    "/opt/airflow/dags/custom_configs/dag_ops.yaml",
+
+    "dags\dag_factory\TEMP\customers_db\tables_config.yaml",
+    "dags\dag_factory\TEMP\orders_db\tables_config.yaml",
+    "dags\dag_factory\TEMP\products_db\tables_config.yaml"
+
+
 ]
 
 # Load a single YAML config
@@ -19,7 +23,7 @@ def load_yaml_config(filepath):
 def create_dag_from_config(config):
     dag_id = config["dag_id"]
     schedule = config.get("schedule_interval", "@daily")
-    start_date = datetime.fromisoformat(config.get("start_date", "2023-01-01"))
+    start_date = datetime.fromisoformat(config.get("start_date", "2025-05-30"))
 
     default_args = {
         "start_date": start_date,
@@ -56,4 +60,4 @@ for yaml_path in YAML_PATHS:
         dag = create_dag_from_config(config)
         globals()[config["dag_id"]] = dag
     else:
-        print(f"⚠️ File not found: {yaml_path}")
+        print(f" File not found: {yaml_path}")
