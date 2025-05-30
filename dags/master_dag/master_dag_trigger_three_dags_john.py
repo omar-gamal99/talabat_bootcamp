@@ -2,14 +2,12 @@ from airflow import DAG
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
 
-# List of DAG IDs to be triggered
 TARGET_DAG_IDS = [
     "customer_db_extract",
     "orders_db_extract",
     "products_db_extract"
 ]
 
-# Define the default arguments for the master DAG
 default_args = {
     'owner': 'airflow',
     'start_date': datetime(2023, 1, 1),
@@ -17,9 +15,8 @@ default_args = {
     'retries': 1,
 }
 
-# Define the master DAG
 with DAG(
-    dag_id='master_db_extract_trigger_dag',
+    dag_id='master_db_extract_trigger_dag_john',
     default_args=default_args,
     schedule_interval=None,
     catchup=False,
@@ -38,7 +35,4 @@ with DAG(
         trigger_task = TriggerDagRunOperator(
             task_id=f'trigger_{target_dag_id}_task',
             trigger_dag_id=target_dag_id,
-            # conf={'message': f'Triggered by master_db_extract_trigger_dag for {target_dag_id}'}, # Optional
-            # wait_for_completion=False, # Optional
-            # poke_interval=60, # Optional
         )
