@@ -6,7 +6,7 @@ default_args = {
     "start_date": datetime(2025, 5, 30),
 }
 
-dag_ids = ["customers_db_extract", "orders_db_extract", "products_db_extract "]
+dag_ids = ["customers_db_extract", "orders_db_extract", "products_db_extract"]
 
 with DAG(
     dag_id="master_dag_trigger_once_doha",
