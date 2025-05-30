@@ -77,17 +77,13 @@ def create_dag_from_yaml(config):
     return dag
 
 # List your 3 YAML file paths here:
-yaml_paths = [
-    '\dags\dag_factory\TEMP\customers_db\tables_config.yaml',
-    '\dags\dag_factory\TEMP\orders_db\tables_config.yaml',
-    '\dags\dag_factory\TEMP\products_db\tables_config.yaml',
-]
+BASE_YAML_PATH = os.path.join(os.path.dirname(__file__), "TEMP")
 
 dags = {}
 
 YOUR_NAME = "maya"  # put your name here, lowercase recommended
 
-for path in yaml_paths:
+for path in BASE_YAML_PATH:
     with open(path) as f:
         config = yaml.safe_load(f)
     dag_id_with_name = f"{config['dag_id']}_{YOUR_NAME}"  # append your name
