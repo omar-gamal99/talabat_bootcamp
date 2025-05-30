@@ -85,10 +85,15 @@ yaml_paths = [
 
 dags = {}
 
+YOUR_NAME = "maya"  # put your name here, lowercase recommended
+
 for path in yaml_paths:
     with open(path) as f:
         config = yaml.safe_load(f)
+    dag_id_with_name = f"{config['dag_id']}_{YOUR_NAME}"  # append your name
     dag = create_dag_from_yaml(config)
-    dags[config['dag_id']] = dag
+    dag.dag_id = dag_id_with_name  # update the dag_id in the DAG object
+    dags[dag_id_with_name] = dag
+
 
 globals().update(dags)
