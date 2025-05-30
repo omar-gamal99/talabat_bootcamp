@@ -7,7 +7,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='trigger_pg_to_bq_once',
+    dag_id='trigger_DAG_Abdulrahman_Khalifa',
     default_args=default_args,
     schedule_interval=None,  
     catchup=False,
