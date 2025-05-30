@@ -5,7 +5,7 @@ from datetime import datetime
 dags=['customer_db_extract','orders_db_extract','products_db_extract']
 
 with DAG(
-    'trigger_dag_hend',
+    'trigger_another_dags_hend',
     start_date=datetime(2025, 5, 30),
     schedule_interval=None,#0 0 * * for 12 am
     catchup=False,
