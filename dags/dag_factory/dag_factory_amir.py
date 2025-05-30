@@ -25,7 +25,7 @@ def generate_dag(dag_id, schedule, tables, default_args, config):
         catchup=False,
     )
     def extract_from_db():
-        @task_group("backend_gcs_bq_tasks")
+        @task_group("backend_gcs_bq_tasks_amir")
         def backend_gcs_bq_tasks():
             for table_data in tables:
                 table_name = table_data["table_name"]
