@@ -15,7 +15,8 @@ default_args = {
 }
 
 with DAG(
-    dag_id="trigger-dag",
+    dag_id="TRIGGER-Postgress-GCS-BQ-ayahany",
+    default_args=default_args,
 ) as dag:
 
     trigger = TriggerDagRunOperator(
