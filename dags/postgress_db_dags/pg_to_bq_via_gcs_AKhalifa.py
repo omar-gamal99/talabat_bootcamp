@@ -4,14 +4,14 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from datetime import datetime
 
 default_args = {
-    'start_date': datetime(2024, 1, 1),
+
     'retries': 1,
 }
 
 with DAG(
     dag_id='pg_to_bq_via_gcs_AKhalifa',
     default_args=default_args,
-    schedule_interval='@daily',
+    schedule_interval=None,
     catchup=False,
     tags=['postgres', 'bigquery', 'talabat']
 ) as dag:
