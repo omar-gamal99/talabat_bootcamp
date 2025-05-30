@@ -15,7 +15,7 @@ default_args = {
 dag_ids_to_trigger = ["customers_db_extract", "orders_db_extract", "products_db_extract"]
 
 with DAG(
-    dag_id="TRIGGER-Postgress-GCS-BQ-ayahany",
+    dag_id="TRIGGER-3-DAGs",
     default_args=default_args,
     tags=["master", "trigger"]
 ) as dag:
