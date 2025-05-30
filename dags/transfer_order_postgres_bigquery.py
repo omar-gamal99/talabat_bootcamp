@@ -4,41 +4,39 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from datetime import datetime
 
 POSTGRES_CONN_ID = "postgress-conn-abdullah-adel"
-GCS_BUCKET = "talabat-labs-postgres-to-gcs"
-GCS_FILENAME = "abdullah"
-BIGQUERY_DATASET = "talabat-labs-3927.landing"
-BIGQUERY_TABLE = "abdullah-orders"
+GCS_BUCKET_NAME = "talabat-labs-postgres-to-gcs"
+GCS_FILE_NAME = "abdullah"
+BQ_DATASET_TABLE = "talabat-labs-3927.landing.abdullah-orders"
 
 default_args = {
     "retries": 1,
 }
 
-dag = DAG(
-    "orders_db_transfer_abdullah_adel",
+with DAG(
+    dag_id="orders_db_transfer_abdullah",
     default_args=default_args,
-    description="Transfer data from orders PostgreSQL to GCS and load into BigQuery",
-    schedule_interval=None,
+    description="Extract orders data from PostgreSQL, store in GCS, and load into BigQuery",
+    schedule_interval="@daily",
     catchup=False,
-)
+    start_date=datetime(2025, 5, 30), 
+) as dag:
 
-transfer_postgres_to_gcs = PostgresToGCSOperator(
-    task_id=f"{BIGQUERY_TABLE}_postgres_to_gcs",
-    postgres_conn_id=POSTGRES_CONN_ID,
-    sql="SELECT * FROM orders",
-    bucket=GCS_BUCKET,
-    filename=GCS_FILENAME,
-    export_format="json",
-    dag=dag,
-)
+    export_to_gcs = PostgresToGCSOperator(
+        task_id="export_orders_to_gcs",
+        postgres_conn_id=POSTGRES_CONN_ID,
+        sql="SELECT * FROM orders",
+        bucket=GCS_BUCKET_NAME,
+        filename=GCS_FILE_NAME,
+        export_format="json",
+    )
 
-load_gcs_to_bigquery = GCSToBigQueryOperator(
-    task_id="load_gcs_to_bigquery",
-    bucket=GCS_BUCKET,
-    source_objects=[GCS_FILENAME],
-    destination_project_dataset_table=f"{BIGQUERY_DATASET}.{BIGQUERY_TABLE}",
-    source_format="NEWLINE_DELIMITED_JSON",
-    write_disposition="WRITE_TRUNCATE",
-    dag=dag,
-)
+    import_to_bigquery = GCSToBigQueryOperator(
+        task_id="import_orders_to_bigquery",
+        bucket=GCS_BUCKET_NAME,
+        source_objects=[GCS_FILE_NAME],
+        destination_project_dataset_table=BQ_DATASET_TABLE,
+        source_format="NEWLINE_DELIMITED_JSON",
+        write_disposition="WRITE_TRUNCATE",
+    )
 
-transfer_postgres_to_gcs >> load_gcs_to_bigquery
+    export_to_gcs >> import_to_bigquery
