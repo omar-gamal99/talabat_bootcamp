@@ -14,3 +14,4 @@ with DAG(
         trigger_dag_id="postgre-to-bigquery-islamsayed",
         wait_for_completion=True  # Optional: waits until the child DAG finishes
     )
+    trigger_child_dag 
