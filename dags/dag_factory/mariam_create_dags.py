@@ -46,21 +46,23 @@ def extract_and_upload_to_gcs(table_name, conn_id, schema, dataset, bucket_name)
     blob.upload_from_filename(local_path)
     print(f"Uploaded {table_name} to gs://{bucket_name}/{dataset}/{table_name}.csv")
 
-CONFIG_DIR = os.path.join(os.path.dirname(__file__), "yaml_configs")
+# Full paths to each tables_config.yaml file
+base_dir = os.path.dirname(__file__)
+yaml_files = [
+    os.path.join(base_dir, "..", "customers_db", "tables_config.yaml"),
+    os.path.join(base_dir, "..", "orders_db", "tables_config.yaml"),
+    os.path.join(base_dir, "..", "products_db", "tables_config.yaml"),
+]
+
 BUCKET_NAME = "talabat-labs-postgres-to-gcs"
 
-for filename in os.listdir(CONFIG_DIR):
-    if not filename.endswith(".yaml"):
-        continue
-
-    with open(os.path.join(CONFIG_DIR, filename)) as f:
+for filepath in yaml_files:
+    with open(filepath) as f:
         config = yaml.safe_load(f)
 
-    # Add 'mariam_' prefix to dag_id
     dag_id = f"mariam_{config['dag_id']}"
     default_args = config.get("default_args", {})
 
-    # Parse start_date string to datetime
     if isinstance(default_args.get("start_date"), str):
         default_args["start_date"] = datetime.strptime(default_args["start_date"], "%Y-%m-%d")
 
@@ -77,9 +79,7 @@ for filename in os.listdir(CONFIG_DIR):
 
     with dag:
         for table in config.get("tables", []):
-            # Add 'mariam_' prefix to task_id
             task_id = f"mariam_extract_and_upload_{table['table_name']}"
-
             PythonOperator(
                 task_id=task_id,
                 python_callable=extract_and_upload_to_gcs,
