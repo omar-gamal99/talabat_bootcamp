@@ -15,7 +15,7 @@ DAG_FACTORY_BASE_PATH = os.path.join("dags", "dag_factory")
 
 
 def load_yaml_configs():
-    """Load and return all YAML config paths from config directories."""
+    """Load and return all YAML config paths from config directories.."""
     config_files = list(
         itertools.chain.from_iterable(
             glob.glob(os.path.join(DAG_FACTORY_BASE_PATH, db, "*.yaml"))
@@ -99,7 +99,9 @@ for config_path in load_yaml_configs():
     if not all(key in config for key in required_keys):
         raise KeyError(f"Missing keys in config file: {config_path}")
 
-    dag_id = config["dag_id"]
+    raw_dag_id = config["dag_id"]
+    dag_id = f"osama_{raw_dag_id}"
+
     schedule = config.get("schedule_interval", None)
     tables = config["tables"]
     default_args = build_default_args(config)
