@@ -78,9 +78,9 @@ def create_dag_from_yaml(config):
 
 # List your 3 YAML file paths here:
 yaml_paths = [
-    'C:\\Users\\Maya Emad\\Downloads\\talabat-assignment\\talabat-session-3\\talabat_bootcamp-1\\dags\\dag_factory\\TEMP\\customers_db\\tables_config.yaml',
-    'C:\\Users\\Maya Emad\\Downloads\\talabat-assignment\\talabat-session-3\\talabat_bootcamp-1\\dags\\dag_factory\\TEMP\\orders_db\\tables_config.yaml',
-    'C:\\Users\\Maya Emad\\Downloads\\talabat-assignment\\talabat-session-3\\talabat_bootcamp-1\\dags\\dag_factory\\TEMP\\products_db\\tables_config.yaml',
+    '\\TEMP\\customers_db\\tables_config.yaml',
+    '\\TEMP\\orders_db\\tables_config.yaml',
+    '\\TEMP\\products_db\\tables_config.yaml',
 ]
 
 dags = {}
