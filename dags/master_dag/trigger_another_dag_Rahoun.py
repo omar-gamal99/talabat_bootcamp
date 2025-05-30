@@ -3,7 +3,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
 
 with DAG(
-    dag_id="trigger_ziad_transfer_dag",
+    dag_id="Rahoun_trigger_ziad_transfer_dag",
     start_date=datetime(2024, 1, 1),
     schedule_interval="@daily",
     catchup=False,
