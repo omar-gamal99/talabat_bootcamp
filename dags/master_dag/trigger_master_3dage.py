@@ -3,7 +3,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
 
 # List of child DAGs to trigger
-child_dags = ['customers', 'orders', 'products']
+child_dags = ['customers_db_extract', 'orders_db_extract', 'products_db_extract']
 
 with DAG(
     dag_id='master_dags_by_hodaa',
@@ -14,5 +14,5 @@ with DAG(
 
     for child_dag in child_dags:
         TriggerDagRunOperator(
-            task_id=f'{child_dag}_db_extract',
+            task_id=f'trigger_{child_dag}',
             trigger_dag_id=child_dag,)
