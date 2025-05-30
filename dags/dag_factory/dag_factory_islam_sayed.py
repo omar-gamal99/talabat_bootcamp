@@ -1,40 +1,50 @@
 import os
 import yaml
-from datetime import datetime
 from airflow import DAG
+from airflow.utils.dates import days_ago
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
+from datetime import datetime
 
-# ---------- Load YAML config ----------
-def load_config(config_path: str) -> dict:
-    with open(config_path, 'r') as file:
-        return yaml.safe_load(file)
+# path to the YAMLs directory
+BASE_YAML_PATH = os.path.join(os.path.dirname(__file__), "TEMP")
 
-# ---------- DAG Factory Function ----------
-def create_dag_from_config(config: dict, dag_id: str) -> DAG:
+def load_yaml_files(base_path):
+    """Recursively load all YAML files under TEMP folder."""
+    yamls = []
+    for root, dirs, files in os.walk(base_path):
+        for file in files:
+            if file.endswith(".yaml") or file.endswith(".yml"):
+                yamls.append(os.path.join(root, file))
+    return yamls
+
+def create_dag_from_yaml(yaml_file_path):
+    with open(yaml_file_path, 'r') as stream:
+        config = yaml.safe_load(stream)
+
+    dag_id = f'{config["dag_id"]}_islam_sayed'
     default_args = config.get("default_args", {})
-    # Parse start_date to datetime
+
+    # Convert start_date from str to datetime
     if "start_date" in default_args:
         default_args["start_date"] = datetime.strptime(default_args["start_date"], "%Y-%m-%d")
-
-    schedule = config.get("schedule_interval")  # keep 'schedule_interval' key to match your YAML
 
     dag = DAG(
         dag_id=dag_id,
         description=config.get("description", ""),
-        schedule_interval=schedule,
-        default_args=default_args,
-        catchup=default_args.get("catchup", False),
+        schedule_interval=config.get("schedule_interval", None),
         concurrency=config.get("concurrency", 1),
         max_active_runs=config.get("max_active_runs", 1),
+        default_args=default_args,
+        catchup=default_args.get("catchup", False),
         tags=["dynamic", config.get("default_dataset", "dataset")]
     )
 
-    schema = config.get("default_source_schema")
-    conn_id = config.get("default_postgres_conn_id")
-    bucket = config.get("gcs_bucket", "talabat-labs-postgres-to-gcs")  # Optionally override bucket in YAML
+    schema = config["default_source_schema"]
+    conn_id = config["default_postgres_conn_id"]
+    tables = config["tables"]
 
     with dag:
-        for table in config.get("tables", []):
+        for table in tables:
             table_name = table["table_name"]
             columns = table.get("columns", "*")
 
@@ -42,24 +52,16 @@ def create_dag_from_config(config: dict, dag_id: str) -> DAG:
                 task_id=f"export_{table_name}",
                 postgres_conn_id=conn_id,
                 sql=f"SELECT {columns} FROM {schema}.{table_name}",
-                bucket=bucket,
-                filename=f"{dag_id}/{table_name}_{{{{ ds_nodash }}}}.json",
+                bucket='talabat-labs-postgres-to-gcs',  
+                filename=f"islam_sayed_{dag_id}/{table_name}_{{{{ ds_nodash }}}}.json",
                 export_format='json',
                 field_delimiter=',',
                 dag=dag
             )
 
-    return dag
+    globals()[dag_id] = dag  # Register DAG globally
 
 
-# ---------- Auto-discover & create DAGs ----------
-BASE_DIR = os.path.dirname(__file__)
-
-for subdir in os.listdir(BASE_DIR):
-    full_path = os.path.join(BASE_DIR, subdir)
-    config_path = os.path.join(full_path, "tables_config.yaml")
-
-    if os.path.isdir(full_path) and os.path.exists(config_path):
-        dag_config = load_config(config_path)
-        dag_id_with_name = dag_config["dag_id"] + "_islam_sayed"
-        globals()[dag_id_with_name] = create_dag_from_config(dag_config, dag_id_with_name)
+# Load and create all DAGs
+for yaml_path in load_yaml_files(BASE_YAML_PATH):
+    create_dag_from_yaml(yaml_path)
