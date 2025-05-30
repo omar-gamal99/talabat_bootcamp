@@ -2,14 +2,16 @@ import glob
 import itertools
 from datetime import datetime
 import yaml
-from airflow.decorators import dag, task_group
+from airflow import DAG
+from airflow.utils.task_group import TaskGroup
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
 
 bucket_name = "talabat-labs-data-platform-airflow-maindb-exports"
 # This DAG factory generates DAGs for transferring data from PostgreSQL to GCS and then to BigQuery.
 def generate_dag(dag_id, schedule, tables, default_args, config):
-    @dag(
+    # Create DAG object explicitly
+    dag = DAG(
         dag_id=dag_id,
         schedule_interval=schedule,
         default_args=default_args,
@@ -17,52 +19,51 @@ def generate_dag(dag_id, schedule, tables, default_args, config):
         max_active_runs=config.get("max_active_runs", 1),
         description=config.get("description", ""),
         catchup=default_args.get("catchup", False),
+        tags=["dynamic_dag"]
     )
-    # This is the main DAG function that orchestrates the data transfer tasks.
-    def extract_from_db():
-        
-        @task_group("backend_gcs_bq_tasks")
-        def backend_gcs_bq_tasks():
+
+    # Use context manager to add tasks to the dag
+    with dag:
+        # Define a TaskGroup for grouping related tasks
+        with TaskGroup("backend_gcs_bq_tasks") as backend_gcs_bq_tasks:
             for table_data in tables:
                 table_name = table_data["table_name"]
                 columns_select = table_data.get("columns", "*")
                 dataset = config.get("default_dataset", "data_platform_export")
                 source_table_schema = config.get("default_source_schema", "public")
                 postgres_conn_id = config.get("default_postgres_conn_id", "default_postgres_conn")
-                
+
                 base_path = f"{dataset}/{table_name}/data_json/raw_data/"
                 filename_path = f"{base_path}raw_data/"
-                
+
                 transfer_postgres_to_gcs = PostgresToGCSOperator(
                     task_id=f"{table_name}_to_gcs",
                     sql=f"""SELECT {columns_select} FROM {source_table_schema}."{table_name}" """,
                     postgres_conn_id=postgres_conn_id,
                     bucket=bucket_name,
-                    filename=filename_path + "{}.json",
+                    filename=f"{filename_path}{{{{ ds_nodash }}}}.json",
                     export_format="json",
                 )
-                
+
                 load_gcs_to_bigquery = GCSToBigQueryOperator(
                     task_id=f"From_GCS_To_Staging_{table_name}_BQ",
                     bucket=bucket_name,
-                    source_objects=[filename_path + "*.json"],
+                    source_objects=[f"{filename_path}*.json"],
                     destination_project_dataset_table=f"talabat_labs.{dataset}.staging_{table_name}",
                     source_format="NEWLINE_DELIMITED_JSON",
                     write_disposition="WRITE_TRUNCATE",
                 )
-                
-                transfer_postgres_to_gcs >> load_gcs_to_bigquery
-        
-        backend_gcs_bq_tasks()
 
-    return extract_from_db()
+                transfer_postgres_to_gcs >> load_gcs_to_bigquery
+
+    return dag
 
 # Load all YAML configuration files from the specified directories
 config_files = list(
     itertools.chain(
-        glob.glob("./gcs/dags/dag_factory/customers_db/*.yaml", recursive=True),
-        glob.glob("./gcs/dags/dag_factory/orders_db/*.yaml", recursive=True),
-        glob.glob("./gcs/dags/dag_factory/products_db/*.yaml", recursive=True),
+        glob.glob("./gcs/dags/dag_factory/TEMP/customers_db/*.yaml", recursive=True),
+        glob.glob("./gcs/dags/dag_factory/TEMP/orders_db/*.yaml", recursive=True),
+        glob.glob("./gcs/dags/dag_factory/TEMP/products_db/*.yaml", recursive=True),
     )
 )
 
@@ -75,7 +76,7 @@ for config_path in config_files:
     if missing_keys:
         raise KeyError(f"Required keys {missing_keys} missing in YAML: {config_path}")
 
-    dag_id = config["dag_id"]+ "_AKhalifa"
+    dag_id = config["dag_id"] + "_AKhalifa"
     schedule = config.get("schedule_interval", None)
     tables = config["tables"]
     default_args = {
@@ -87,8 +88,7 @@ for config_path in config_files:
         "retries": config.get("default_args", {}).get("retries", 1),
         "email_on_failure": config.get("default_args", {}).get("email_on_failure", True),
         "gcp_conn_id": config.get("default_args", {}).get("gcp_conn_id", "bigquery_default"),
-        "max_active_runs": config.get("default_args", {}).get("max_active_runs", 1),
-        "concurrency": config.get("default_args", {}).get("concurrency", 1),
+        # max_active_runs and concurrency are set on DAG, not default_args
     }
 
     globals()[dag_id] = generate_dag(dag_id, schedule, tables, default_args, config)
