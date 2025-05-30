@@ -3,7 +3,7 @@ from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from datetime import datetime
 
 with DAG(
-    dag_id="masterdag_trigger_postgre_to_bq",
+    dag_id="masterdag_trigger_postgre_to_bq_islam_sayed",
     start_date=datetime(2023, 1, 1),
     schedule_interval=None,
     catchup=False,
