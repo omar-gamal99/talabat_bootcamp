@@ -1,17 +1,26 @@
 from airflow import DAG
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
+from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
+
+child_dag_ids = [
+    "customers_db_extract",
+    "orders_db_extract",
+    "products_db_extract",
+]
 
 with DAG(
     dag_id="parent_dag_amir",
-    start_date=datetime(2023, 1, 1),
+    start_date=datetime(2025, 5, 30),
     schedule_interval=None,
-    catchup=False,
+    catchup=False, 
 ) as dag:
 
-    trigger_child = TriggerDagRunOperator(
-        task_id="trigger_amir",
-        trigger_dag_id="orders_db_transfer_amir",  # Name of the DAG to trigger
-        wait_for_completion=False,  # Set True if you want to wait for child DAG to finish
-        reset_dag_run=True,  # Set True to clear the previous run with same execution_date
-    )
+    for dag_id in child_dag_ids:
+        TriggerDagRunOperator(
+            task_id=f"trigger_dag_{dag_id}",  
+            trigger_dag_id=dag_id,
+            wait_for_completion=False,
+            reset_dag_run=True,
+        )
+
