@@ -60,9 +60,9 @@ def generate_dag(dag_id, schedule, tables, default_args, config):
 # Load all YAML configuration files from the specified directories
 config_files = list(
     itertools.chain(
-        glob.glob("./gcs/dags/dag_factory/customers_db/*.yaml", recursive=True),
-        glob.glob("./gcs/dags/dag_factory/orders_db/*.yaml", recursive=True),
-        glob.glob("./gcs/dags/dag_factory/products_db/*.yaml", recursive=True),
+        glob.glob("./gcs/dags/dag_factory/TEMP/customers_db/*.yaml", recursive=True),
+        glob.glob("./gcs/dags/dag_factory/TEMP/orders_db/*.yaml", recursive=True),
+        glob.glob("./gcs/dags/dag_factory/TEMP/products_db/*.yaml", recursive=True),
     )
 )
 
