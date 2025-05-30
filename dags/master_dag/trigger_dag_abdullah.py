@@ -1,57 +1,23 @@
 from airflow import DAG
-from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
-from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
-from airflow.operators.dagrun_operator import TriggerDagRunOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
-
-POSTGRES_CONN_ID = "postgress-conn-abdullah-adel"
-GCS_BUCKET_NAME = "talabat-labs-postgres-to-gcs"
-GCS_FILE_NAME = "abdullah"
-BQ_DATASET_TABLE = "talabat-labs-3927.landing.abdullah-orders"
 
 default_args = {
     "retries": 1,
 }
 
 with DAG(
-    dag_id="orders_db_transfer_abdullah_adel",
+    dag_id="trigger_orders_db_transfer",
     default_args=default_args,
-    description="Extract orders data from PostgreSQL, store in GCS, and load into BigQuery",
-    schedule_interval="@daily",
+    description="Triggers the orders_db_transfer_abdullah_adel DAG",
+    schedule_interval="@daily",  # or change as needed
     catchup=False,
-    start_date=datetime(2025, 5, 30), 
+    start_date=datetime(2025, 5, 30),
 ) as dag:
 
-    export_to_gcs = PostgresToGCSOperator(
-        task_id="export_orders_to_gcs",
-        postgres_conn_id=POSTGRES_CONN_ID,
-        sql="SELECT * FROM orders",
-        bucket=GCS_BUCKET_NAME,
-        filename=GCS_FILE_NAME,
-        export_format="json",
-    )
-
-    import_to_bigquery = GCSToBigQueryOperator(
-        task_id="import_orders_to_bigquery",
-        bucket=GCS_BUCKET_NAME,
-        source_objects=[GCS_FILE_NAME],
-        destination_project_dataset_table=BQ_DATASET_TABLE,
-        source_format="NEWLINE_DELIMITED_JSON",
-        write_disposition="WRITE_TRUNCATE",
-    )
-
-    # Example: Trigger 2 downstream DAGs after loading into BigQuery
-    trigger_downstream_1 = TriggerDagRunOperator(
-        task_id="trigger_cleaning_dag",
-        trigger_dag_id="cleaning_orders_dag",  # replace with your actual DAG ID
+    trigger_orders_transfer_dag = TriggerDagRunOperator(
+        task_id="trigger_orders_db_transfer_abdullah_adel",
+        trigger_dag_id="orders_db_transfer_abdullah_adel",
         wait_for_completion=False,
+        reset_dag_run=True,
     )
-
-    trigger_downstream_2 = TriggerDagRunOperator(
-        task_id="trigger_reporting_dag",
-        trigger_dag_id="generate_orders_report_dag",  # replace with your actual DAG ID
-        wait_for_completion=False,
-    )
-
-    # Task dependencies
-    export_to_gcs >> import_to_bigquery >> [trigger_downstream_1, trigger_downstream_2]
