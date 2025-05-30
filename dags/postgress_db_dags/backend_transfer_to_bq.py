@@ -13,7 +13,7 @@ BIGQUERY_DATASET = "talabat-labs-3927.landing"
 BIGQUERY_TABLE = "ziad-orders"
 
 default_args = {
-    "retries": 1,
+    "retries": 1,   
 }
 
 dag = DAG(
