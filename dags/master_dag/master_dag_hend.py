@@ -12,4 +12,5 @@ with DAG(
     trigger = TriggerDagRunOperator(
         task_id='trigger_other_dag_hend',
         trigger_dag_id='postgres_to_bigquery_hend',
+        wait_for_completion=True
     )
