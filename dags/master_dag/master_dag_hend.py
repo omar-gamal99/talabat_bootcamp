@@ -10,6 +10,6 @@ with DAG(
 ) as dag:
 
     trigger = TriggerDagRunOperator(
-        task_id='trigger_other_dag',
+        task_id='trigger_other_dag_hend',
         trigger_dag_id='postgres_to_bigquery_hend',
     )
