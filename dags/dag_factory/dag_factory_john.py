@@ -6,9 +6,11 @@ from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToG
 from airflow.utils.dates import days_ago
 
 # --- Configuration ---
-YAML_CONFIG_BASE_PATH = '/talabat_bootcamp/dags/dag_factory/TEMP' 
-DEFAULT_GCS_BUCKET = 'talabat-labs-postgres-to-gcs'
-DEFAULT_POSTGRES_CONN_ID = 'postgress-conn-john'
+# IMPORTANT: Change this to the absolute path where your YAML configuration files are stored.
+YAML_CONFIG_BASE_PATH = '/talabat_bootcamp/dags/dag_factory/TEMP'  # Updated YAML config path
+# IMPORTANT: Change this to your default GCS bucket, or ensure each YAML specifies 'gcs_bucket'.
+DEFAULT_GCS_BUCKET = 'talabat-labs-postgres-to-gcs' # Updated default GCS bucket
+DEFAULT_POSTGRES_CONN_ID = 'postgress-conn-john' # Updated default connection ID
 
 def create_dag_from_config(dag_id, description, schedule_interval, concurrency, max_active_runs, dag_default_args,
                            tables_config, postgres_conn_id, source_schema, gcs_bucket_name):
@@ -16,14 +18,14 @@ def create_dag_from_config(dag_id, description, schedule_interval, concurrency, 
     Dynamically creates an Airflow DAG and its tasks based on the provided configuration.
     """
     dag = DAG(
-        dag_id=dag_id,
+        dag_id=dag_id, # This will be the modified dag_id (e.g., original_dag_id_john)
         description=description,
         schedule_interval=schedule_interval,
         default_args=dag_default_args,
         concurrency=concurrency,
         max_active_runs=max_active_runs,
         catchup=dag_default_args.get('catchup', False),
-        tags=['dynamic_yaml_generated', source_schema or 'general_extract']
+        tags=['dynamic_yaml_generated', source_schema or 'general_extract', 'john_suffix']
     )
 
     with dag:
@@ -44,6 +46,7 @@ def create_dag_from_config(dag_id, description, schedule_interval, concurrency, 
                 columns_str = str(columns)
 
             sql_query = f'SELECT {columns_str} FROM {source_schema}.{table_name};'
+            # The gcs_object_name will also reflect the modified dag_id
             gcs_object_name = f"{dag_id}/{table_name}/{{{{ ds_nodash }}}}_{table_name}.json"
 
             PostgresToGCSOperator(
@@ -79,26 +82,31 @@ def register_dags_from_yaml_files(base_path):
                         print(f"Skipping {yaml_file_path}: content is not a valid YAML dictionary.")
                         continue
 
-                    dag_id = config_from_yaml.get('dag_id')
-                    if not dag_id:
-                        print(f"Skipping {yaml_file_path}: 'dag_id' is missing.")
+                    original_dag_id = config_from_yaml.get('dag_id')
+                    if not original_dag_id:
+                        print(f"Skipping {yaml_file_path}: 'dag_id' is missing from YAML.")
                         continue
+                    
+                    # Append '_john' to the dag_id from the YAML file
+                    dag_id_with_suffix = f"{original_dag_id}_john"
+                    print(f"Original DAG ID from YAML: '{original_dag_id}', Generated DAG ID: '{dag_id_with_suffix}'")
+
 
                     dag_default_args = config_from_yaml.get('default_args', {})
                     if 'start_date' in dag_default_args:
                         try:
                             dag_default_args['start_date'] = datetime.strptime(str(dag_default_args['start_date']), '%Y-%m-%d')
                         except ValueError:
-                            print(f"Skipping DAG {dag_id} from {yaml_file_path}: Invalid 'start_date' format. Use YYYY-MM-DD.")
+                            print(f"Skipping DAG {dag_id_with_suffix} from {yaml_file_path}: Invalid 'start_date' format. Use YYYY-MM-DD.")
                             continue
                     else:
-                        print(f"Warning for DAG {dag_id}: 'start_date' not in default_args. Using 'days_ago(1)'.")
+                        print(f"Warning for DAG {dag_id_with_suffix}: 'start_date' not in default_args. Using 'days_ago(1)'.")
                         dag_default_args['start_date'] = days_ago(1)
                     
                     if 'owner' not in dag_default_args:
                         dag_default_args['owner'] = 'DefaultOwner'
 
-                    description = config_from_yaml.get('description', f"DAG for {dag_id}")
+                    description = config_from_yaml.get('description', f"DAG for {original_dag_id}") # Keep original desc or modify
                     schedule_interval = config_from_yaml.get('schedule_interval', None)
                     concurrency = config_from_yaml.get('concurrency', 10)
                     max_active_runs = config_from_yaml.get('max_active_runs', 1)
@@ -108,20 +116,28 @@ def register_dags_from_yaml_files(base_path):
                     gcs_bucket_name = config_from_yaml.get('gcs_bucket', DEFAULT_GCS_BUCKET)
                     
                     if gcs_bucket_name == 'your-default-gcs-landing-bucket' and DEFAULT_GCS_BUCKET == 'your-default-gcs-landing-bucket':
-                        print(f"CRITICAL WARNING for DAG {dag_id}: GCS bucket is still the placeholder '{gcs_bucket_name}'. This DAG will likely fail. Please ensure 'DEFAULT_GCS_BUCKET' is correctly set in the script or 'gcs_bucket' is in the YAML.")
+                        print(f"CRITICAL WARNING for DAG {dag_id_with_suffix}: GCS bucket is still the placeholder '{gcs_bucket_name}'. This DAG will likely fail. Please ensure 'DEFAULT_GCS_BUCKET' is correctly set in the script or 'gcs_bucket' is in the YAML.")
 
                     tables_config = config_from_yaml.get('tables', [])
                     if not tables_config:
-                        print(f"Warning for DAG {dag_id}: 'tables' array is missing or empty. DAG will have no tasks.")
+                        print(f"Warning for DAG {dag_id_with_suffix}: 'tables' array is missing or empty. DAG will have no tasks.")
                     
                     dag_object = create_dag_from_config(
-                        dag_id, description, schedule_interval, concurrency, max_active_runs, dag_default_args,
-                        tables_config, postgres_conn_id, source_schema, gcs_bucket_name
+                        dag_id_with_suffix, # Use the modified dag_id here
+                        description, 
+                        schedule_interval, 
+                        concurrency, 
+                        max_active_runs, 
+                        dag_default_args,
+                        tables_config, 
+                        postgres_conn_id, 
+                        source_schema, 
+                        gcs_bucket_name
                     )
                     
-                    globals()[dag_id] = dag_object
+                    globals()[dag_id_with_suffix] = dag_object # Register with the modified dag_id
                     created_dags_count +=1
-                    print(f"Successfully registered DAG: {dag_id}")
+                    print(f"Successfully registered DAG: {dag_id_with_suffix}")
 
                 except yaml.YAMLError as e:
                     print(f"Error parsing YAML file {yaml_file_path}: {e}")
@@ -134,4 +150,3 @@ if os.path.exists(YAML_CONFIG_BASE_PATH):
     register_dags_from_yaml_files(YAML_CONFIG_BASE_PATH)
 else:
     print(f"WARNING: YAML configuration path '{YAML_CONFIG_BASE_PATH}' does not exist. No dynamic DAGs will be loaded.")
-
