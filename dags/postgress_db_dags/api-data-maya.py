@@ -44,7 +44,7 @@ with DAG(
     start_date=days_ago(1),
     schedule_interval=None,
     catchup=False,
-    tags=['api', 'gcs', 'bigquery'],
+    tags=['api', 'payments' , 'bigquery']
 ) as dag:
 
     fetch_and_upload = PythonOperator(
