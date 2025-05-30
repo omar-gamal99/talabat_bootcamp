@@ -13,7 +13,7 @@ with DAG(
     
     for dag_id in dags:
         trigger = TriggerDagRunOperator(
-            task_id=f'Dag_{dag_id}_dags_hend',
+            task_id=f'Dag_trigger_{dag_id}_dags_hend',
             trigger_dag_id=dag_id,
             wait_for_completion=True
         )
