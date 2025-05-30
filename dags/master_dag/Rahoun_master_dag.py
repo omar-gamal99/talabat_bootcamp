@@ -4,12 +4,12 @@ from datetime import datetime
 
 # Define the master DAG
 with DAG(
-    dag_id="master_trigger_dag",
+    dag_id="Rahoun_master_trigger_dag",
     start_date=datetime(2024, 1, 1),
     schedule_interval=None,  # Run manually or trigger externally
     catchup=False,
     description="Master DAG to trigger customer, orders, and product DAGs",
-) as dag:
+) as dag:##
 
     # Trigger customer_db_extract
     trigger_customer = TriggerDagRunOperator(
