@@ -6,8 +6,9 @@ from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToG
 from airflow.utils.dates import days_ago
 
 # --- Configuration ---
+# Determine the directory of the current script
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-YAML_CONFIG_BASE_PATH = os.path.join(SCRIPT_DIR, 'dag_factory', 'TEMP')
+YAML_CONFIG_BASE_PATH = os.path.join(SCRIPT_DIR, 'TEMP')
 
 DEFAULT_GCS_BUCKET = 'talabat-labs-postgres-to-gcs'
 DEFAULT_POSTGRES_CONN_ID = 'postgress-conn-john'
@@ -30,13 +31,13 @@ def create_dag_from_config(dag_id, description, schedule_interval, concurrency, 
 
     with dag:
         if not tables_config:
-            print(f"INFO: No tables defined for DAG: {dag_id}. DAG will have no tasks.")
+            print(f"INFO [DAG: {dag_id}]: No tables defined. DAG will have no tasks.")
             return dag
 
         for table_info in tables_config:
             table_name = table_info.get('table_name')
             if not table_name:
-                print(f"WARNING: Skipping table in DAG {dag_id} due to missing 'table_name'.")
+                print(f"WARNING [DAG: {dag_id}]: Skipping table due to missing 'table_name' in its configuration.")
                 continue
 
             columns = table_info.get('columns', '*')
@@ -62,9 +63,12 @@ def register_dags_from_yaml_files(base_path):
     """
     Scans for YAML files in the base_path, parses them, and creates Airflow DAGs.
     """
-    print(f"INFO: Starting YAML DAG discovery in resolved base_path: {base_path}")
+    print(f"INFO: Starting YAML DAG discovery. Attempting to read from base_path: {base_path}")
     if not os.path.exists(base_path):
-        print(f"ERROR: The base_path for YAML files does not exist: {base_path}. No DAGs will be generated from YAML.")
+        print(f"ERROR: YAML config directory not found: '{base_path}'. No DAGs will be generated from YAML. Please check YAML_CONFIG_BASE_PATH and your directory structure.")
+        return
+    if not os.path.isdir(base_path):
+        print(f"ERROR: YAML_CONFIG_BASE_PATH '{base_path}' is not a directory. No DAGs will be generated from YAML.")
         return
 
     found_yaml_files = 0
@@ -76,6 +80,7 @@ def register_dags_from_yaml_files(base_path):
                 found_yaml_files += 1
                 yaml_file_path = os.path.join(root_dir, file_name)
                 print(f"INFO: Processing YAML file: {yaml_file_path}")
+                config_from_yaml = None # Initialize for safer error reporting
 
                 try:
                     with open(yaml_file_path, 'r') as f:
@@ -98,30 +103,27 @@ def register_dags_from_yaml_files(base_path):
                         try:
                             dag_default_args['start_date'] = datetime.strptime(str(dag_default_args['start_date']), '%Y-%m-%d')
                         except ValueError:
-                            print(f"ERROR: Skipping DAG {dag_id_with_suffix} from {yaml_file_path}: Invalid 'start_date' format. Use YYYY-MM-DD.")
+                            print(f"ERROR [DAG Config: {original_dag_id}]: Skipping DAG due to invalid 'start_date' format in {yaml_file_path}. Use YYYY-MM-DD.")
                             continue
                     else:
-                        print(f"WARNING: For DAG {dag_id_with_suffix}: 'start_date' not in default_args. Using 'days_ago(1)'.")
+                        print(f"WARNING [DAG Config: {original_dag_id}]: 'start_date' not in default_args for {yaml_file_path}. Using 'days_ago(1)'.")
                         dag_default_args['start_date'] = days_ago(1)
                     
                     if 'owner' not in dag_default_args:
-                        dag_default_args['owner'] = 'DefaultOwner'
+                        dag_default_args['owner'] = 'DefaultOwner' # Provide a fallback owner
 
                     description = config_from_yaml.get('description', f"DAG for {original_dag_id}")
                     schedule_interval = config_from_yaml.get('schedule_interval', None)
-                    concurrency = config_from_yaml.get('concurrency', 10)
+                    concurrency = config_from_yaml.get('concurrency', 10) 
                     max_active_runs = config_from_yaml.get('max_active_runs', 1)
 
                     postgres_conn_id = config_from_yaml.get('default_postgres_conn_id', DEFAULT_POSTGRES_CONN_ID)
                     source_schema = config_from_yaml.get('default_source_schema', 'public')
                     gcs_bucket_name = config_from_yaml.get('gcs_bucket', DEFAULT_GCS_BUCKET)
                     
-                    if gcs_bucket_name == 'your-default-gcs-landing-bucket' and DEFAULT_GCS_BUCKET == 'your-default-gcs-landing-bucket':
-                        print(f"CRITICAL WARNING for DAG {dag_id_with_suffix}: GCS bucket is still the placeholder '{gcs_bucket_name}'. This DAG will likely fail.")
-
                     tables_config = config_from_yaml.get('tables', [])
                     if not tables_config:
-                        print(f"WARNING: For DAG {dag_id_with_suffix}: 'tables' array is missing or empty. DAG will have no tasks.")
+                        print(f"WARNING [DAG Config: {original_dag_id}]: 'tables' array is missing or empty in {yaml_file_path}. DAG {dag_id_with_suffix} will have no tasks.")
                     
                     dag_object = create_dag_from_config(
                         dag_id_with_suffix, description, schedule_interval, concurrency, max_active_runs, dag_default_args,
@@ -135,8 +137,10 @@ def register_dags_from_yaml_files(base_path):
                 except yaml.YAMLError as e:
                     print(f"ERROR: Parsing YAML file {yaml_file_path}: {e}")
                 except Exception as e:
-                    print(f"ERROR: Processing DAG configuration from {yaml_file_path} for {config_from_yaml.get('dag_id', 'Unknown DAG')}: {e}")
+                    yaml_id_for_error = config_from_yaml.get('dag_id', 'Unknown DAG ID') if config_from_yaml else 'Unknown DAG ID'
+                    print(f"ERROR: Processing DAG configuration from {yaml_file_path} for {yaml_id_for_error}: {e}")
     
-    print(f"INFO: Finished YAML DAG discovery. Found {found_yaml_files} YAML files. Successfully created {created_dags_count} DAGs.")
+    print(f"INFO: Finished YAML DAG discovery. Found {found_yaml_files} YAML files. Attempted to create {created_dags_count} DAGs.")
 
+# --- Main execution ---
 register_dags_from_yaml_files(YAML_CONFIG_BASE_PATH)
