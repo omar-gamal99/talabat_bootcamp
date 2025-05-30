@@ -44,7 +44,7 @@ with DAG(
     start_date=days_ago(1),
     schedule_interval=None,
     catchup=False,
-    tags=['api', 'gcs', 'bigquery'],
+    tags=['api', 'payments' , 'bigquery']
 ) as dag:
 
     fetch_and_upload = PythonOperator(
@@ -53,7 +53,7 @@ with DAG(
     )
 
     load_to_bq = GCSToBigQueryOperator(
-        task_id='load_csv_from_gcs_to_bq',
+        task_id='load_csv_from_gcs_to_bq_maya',
         bucket=GCS_BUCKET,
         source_objects=[GCS_FILENAME],
         destination_project_dataset_table=BQ_TABLE,
