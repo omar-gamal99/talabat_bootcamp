@@ -7,7 +7,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="trigger_orders_db_transfer",
+    dag_id="trigger_transfer_abdullah",
     default_args=default_args,
     description="Triggers the orders_db_transfer_abdullah_adel DAG",
     schedule_interval="@daily",  # or change as needed
