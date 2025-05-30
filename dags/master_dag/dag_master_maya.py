@@ -11,8 +11,8 @@ with DAG(
 ) as dag:
 
     trigger_task = TriggerDagRunOperator(
-        task_id='trigger_api_to_bq_gcp_maya_dag',
-        trigger_dag_id='api_to_bq_gcp_maya1',  # 👈 Must match your actual DAG name
+        task_id='api_to_bq_gcp_maya',
+        trigger_dag_id='api_to_bq_gcp_maya_dag',  # 👈 Must match your actual DAG name
     )
 
     trigger_task
