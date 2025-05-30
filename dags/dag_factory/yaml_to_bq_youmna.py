@@ -5,7 +5,6 @@ from airflow.utils.dates import days_ago
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
 from datetime import datetime
 
-# 👇 path to the YAMLs directory
 BASE_YAML_PATH = os.path.join(os.path.dirname(__file__), "TEMP")
 
 def load_yaml_files(base_path):
@@ -59,7 +58,7 @@ def create_dag_from_yaml(yaml_file_path):
                 dag=dag
             )
 
-    globals()[dag_id] = dag  # Register DAG globally
+    globals()[dag_id] = dag  
 
 
 # 🔁 Load and create all DAGs
