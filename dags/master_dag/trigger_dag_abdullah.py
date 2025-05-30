@@ -7,17 +7,34 @@ default_args = {
 }
 
 with DAG(
-    dag_id="trigger_transfer_abdullah",
+    dag_id="master_db_extract_trigger_abdullah",
     default_args=default_args,
-    description="Triggers the orders_db_transfer_abdullah_adel DAG",
-    schedule_interval="@daily",  # or change as needed
+    description="Master DAG to trigger customers, orders, and products DB extract DAGs",
+    schedule_interval="@daily",  # or change to None if manually triggered
     catchup=False,
     start_date=datetime(2025, 5, 30),
 ) as dag:
 
-    trigger_orders_transfer_dag = TriggerDagRunOperator(
-        task_id="trigger_orders_db_transfer_abdullah_adel",
-        trigger_dag_id="orders_db_transfer_abdullah_adel",
+    trigger_customers = TriggerDagRunOperator(
+        task_id="trigger_customers_db_extract",
+        trigger_dag_id="customers_db_extract",
         wait_for_completion=False,
         reset_dag_run=True,
     )
+
+    trigger_orders = TriggerDagRunOperator(
+        task_id="trigger_orders_db_extract",
+        trigger_dag_id="orders_db_extract",
+        wait_for_completion=False,
+        reset_dag_run=True,
+    )
+
+    trigger_products = TriggerDagRunOperator(
+        task_id="trigger_products_db_extract",
+        trigger_dag_id="products_db_extract",
+        wait_for_completion=False,
+        reset_dag_run=True,
+    )
+
+    # Run all three in parallel
+    [trigger_customers, trigger_orders, trigger_products]
