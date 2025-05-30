@@ -27,6 +27,10 @@ config_files = list(
             "./gcs/dags/dag_factory/TEMP/products_db/*.yaml",
             recursive=True,
         ),
+        glob.glob(
+            "./gcs/dags/dag_factory/TEMP/vendors_db_dummy/*.yaml",
+            recursive=True,
+        ),
     )
 )
 
@@ -76,7 +80,7 @@ for config_path in config_files:
         catchup=False,
         tags=[f"{dag_id}_dag_yousef36"],
         default_args=default_args
-        
+
     ) as dag:
         for table in tables:
             table_name = table["table_name"]
