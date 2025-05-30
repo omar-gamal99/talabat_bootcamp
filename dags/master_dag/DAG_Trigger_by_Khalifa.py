@@ -9,7 +9,7 @@ default_args = {
 with DAG(
     dag_id='DAG_Trigger_by_Khalifa',
     default_args=default_args,
-    schedule_interval=@once,  
+    schedule_interval='@once',  
     catchup=False,
     tags=['trigger', 'manual']
 ) as dag:
