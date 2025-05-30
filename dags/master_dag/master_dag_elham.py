@@ -18,7 +18,10 @@ with DAG(
     trigger = TriggerDagRunOperator(
         task_id='triggering_trasfer_api_dag_elham',
         trigger_dag_id='transfer_from_api_to_bq_elham',
+        # task_id='triggering_transfer_postgres_to_bq_dag_elham',
+        # trigger_dag_id='transfer_from_postgres_to_bq_elham',
         wait_for_completion=True
     )
 
     trigger
+
