@@ -40,7 +40,7 @@ def create_dag_from_yaml(yaml_file_path):
     )
 
     schema = config["default_source_schema"]
-    conn_id = config["default_postgres_conn_id"]
+    conn_id = config.get("default_postgres_conn_id", "default_conn_id_if_missing")
     tables = config["tables"]
 
     with dag:
