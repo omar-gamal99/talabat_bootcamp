@@ -21,7 +21,7 @@ def create_dag_from_yaml(yaml_file_path):
     with open(yaml_file_path, 'r') as stream:
         config = yaml.safe_load(stream)
 
-    dag_id = config["dag_id"]
+    dag_id = f'{config["dag_id"]}_hoda'
     default_args = config.get("default_args", {})
 
     # Convert start_date from str to datetime
