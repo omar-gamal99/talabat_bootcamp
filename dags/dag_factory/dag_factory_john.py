@@ -6,11 +6,9 @@ from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToG
 from airflow.utils.dates import days_ago
 
 # --- Configuration ---
-# IMPORTANT: Change this to the absolute path where your YAML configuration files are stored.
-YAML_CONFIG_BASE_PATH = '/talabat_bootcamp/dags/dag_factory/TEMP'  # Updated YAML config path
-# IMPORTANT: Change this to your default GCS bucket, or ensure each YAML specifies 'gcs_bucket'.
-DEFAULT_GCS_BUCKET = 'talabat-labs-postgres-to-gcs' # Updated default GCS bucket
-DEFAULT_POSTGRES_CONN_ID = 'postgress-conn-john' # Updated default connection ID
+YAML_CONFIG_BASE_PATH = '/talabat_bootcamp/dags/dag_factory/TEMP'
+DEFAULT_GCS_BUCKET = 'talabat-labs-postgres-to-gcs'
+DEFAULT_POSTGRES_CONN_ID = 'postgress-conn-john'
 
 def create_dag_from_config(dag_id, description, schedule_interval, concurrency, max_active_runs, dag_default_args,
                            tables_config, postgres_conn_id, source_schema, gcs_bucket_name):
@@ -18,7 +16,7 @@ def create_dag_from_config(dag_id, description, schedule_interval, concurrency, 
     Dynamically creates an Airflow DAG and its tasks based on the provided configuration.
     """
     dag = DAG(
-        dag_id=dag_id, # This will be the modified dag_id (e.g., original_dag_id_john)
+        dag_id=dag_id,
         description=description,
         schedule_interval=schedule_interval,
         default_args=dag_default_args,
@@ -106,7 +104,7 @@ def register_dags_from_yaml_files(base_path):
                     if 'owner' not in dag_default_args:
                         dag_default_args['owner'] = 'DefaultOwner'
 
-                    description = config_from_yaml.get('description', f"DAG for {original_dag_id}") # Keep original desc or modify
+                    description = config_from_yaml.get('description', f"DAG for {original_dag_id}")
                     schedule_interval = config_from_yaml.get('schedule_interval', None)
                     concurrency = config_from_yaml.get('concurrency', 10)
                     max_active_runs = config_from_yaml.get('max_active_runs', 1)
@@ -123,7 +121,7 @@ def register_dags_from_yaml_files(base_path):
                         print(f"Warning for DAG {dag_id_with_suffix}: 'tables' array is missing or empty. DAG will have no tasks.")
                     
                     dag_object = create_dag_from_config(
-                        dag_id_with_suffix, # Use the modified dag_id here
+                        dag_id_with_suffix, 
                         description, 
                         schedule_interval, 
                         concurrency, 
@@ -135,7 +133,7 @@ def register_dags_from_yaml_files(base_path):
                         gcs_bucket_name
                     )
                     
-                    globals()[dag_id_with_suffix] = dag_object # Register with the modified dag_id
+                    globals()[dag_id_with_suffix] = dag_object
                     created_dags_count +=1
                     print(f"Successfully registered DAG: {dag_id_with_suffix}")
 
