@@ -1,0 +1,15 @@
+dag_id: "dummy_test"
+description: "A dummy DAG generated from YAML for testing purposes."
+schedule_interval: null
+concurrency: 3
+max_active_runs: 1
+default_args:
+  owner: "Test User"
+  depends_on_past: false
+  start_date: "2023-01-01"
+  catchup: false
+  retries: 1
+
+default_source_schema: "public"
+tables:
+  - table_name: "dummy_table_1"
