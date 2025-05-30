@@ -83,8 +83,8 @@ dags = {}
 
 YOUR_NAME = "maya"  # put your name here, lowercase recommended
 
-for path in BASE_YAML_PATH:
-    with open(path) as f:
+for path_ in BASE_YAML_PATH:
+    with open(path_) as f:
         config = yaml.safe_load(f)
     dag_id_with_name = f"{config['dag_id']}_{YOUR_NAME}"  # append your name
     dag = create_dag_from_yaml(config)
