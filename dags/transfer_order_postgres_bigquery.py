@@ -1,10 +1,7 @@
 from airflow import DAG
-from airflow.providers.google.cloud.transfers.postgres_to_gcs import (
-    PostgresToGCSOperator,
-)
-from airflow.providers.google.cloud.transfers.gcs_to_bigquery import (
-    GCSToBigQueryOperator,
-)
+from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
+from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
+from datetime import datetime
 
 POSTGRES_CONN_ID = "postgress-conn-abdullah-adel"
 GCS_BUCKET = "talabat-labs-postgres-to-gcs"
