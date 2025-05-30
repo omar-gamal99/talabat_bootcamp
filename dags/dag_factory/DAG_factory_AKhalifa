@@ -75,7 +75,7 @@ for config_path in config_files:
     if missing_keys:
         raise KeyError(f"Required keys {missing_keys} missing in YAML: {config_path}")
 
-    dag_id = config["dag_id"]
+    dag_id = config["dag_id"]+ "_AKHalifa"
     schedule = config.get("schedule_interval", None)
     tables = config["tables"]
     default_args = {
