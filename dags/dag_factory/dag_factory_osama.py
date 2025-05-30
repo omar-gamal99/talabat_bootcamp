@@ -15,7 +15,7 @@ DAG_FACTORY_BASE_PATH = os.path.join("dags", "dag_factory")
 
 
 def load_yaml_configs():
-    """Load and return all YAML config paths from config directories."""
+    """Load and return all YAML config paths from config directories.."""
     config_files = list(
         itertools.chain.from_iterable(
             glob.glob(os.path.join(DAG_FACTORY_BASE_PATH, db, "*.yaml"))
