@@ -1,95 +1,67 @@
 import os
-import csv
 import yaml
-import logging
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.utils.task_group import TaskGroup
-from airflow.providers.postgres.hooks.postgres import PostgresHook
-from airflow.providers.google.cloud.hooks.gcs import GCSHook
+from airflow.utils.dates import days_ago
+from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
 from datetime import datetime
 
-def extract_and_upload_to_gcs(table_name, columns, postgres_conn_id, gcs_bucket, **kwargs):
-    hook = PostgresHook(postgres_conn_id=postgres_conn_id)
-    sql = f"SELECT {columns} FROM {table_name};"
-    logging.info(f"Running query: {sql}")
-
-    records = hook.get_records(sql)
-    logging.info(f"Extracted {len(records)} rows from {table_name}")
-
-    tmp_dir = '/tmp/airflow_exports'
-    os.makedirs(tmp_dir, exist_ok=True)
-    csv_path = os.path.join(tmp_dir, f"{table_name}.csv")
-
-    # Write CSV including header
-    with open(csv_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        cursor = hook.get_conn().cursor()
-        cursor.execute(sql)
-        colnames = [desc[0] for desc in cursor.description]
-        writer.writerow(colnames)
-        writer.writerows(records)
-
-    gcs_hook = GCSHook()
-    destination_blob_name = f"{table_name}.csv"
-    gcs_hook.upload(
-        bucket_name=gcs_bucket,
-        object_name=destination_blob_name,
-        filename=csv_path
-    )
-    logging.info(f"Uploaded {csv_path} to gs://{gcs_bucket}/{destination_blob_name}")
-
-def create_dag_from_yaml(config):
-    default_args = {
-        'owner': config['default_args']['owner'],
-        'depends_on_past': config['default_args']['depends_on_past'],
-        'start_date': datetime.strptime(config['default_args']['start_date'], "%Y-%m-%d"),
-        'retries': config['default_args']['retries'],
-        'email': config['default_args']['email'],
-        'email_on_failure': config['default_args']['email_on_failure'],
-        'catchup': config['default_args']['catchup'],
-    }
-
-    dag = DAG(
-        dag_id=config['dag_id'],
-        description=config.get('description', ''),
-        schedule_interval=config['schedule_interval'],
-        concurrency=config.get('concurrency', 16),
-        max_active_runs=config.get('max_active_runs', 1),
-        default_args=default_args,
-        catchup=config['default_args']['catchup'],
-    )
-
-    with TaskGroup("extract_tables", tooltip="Extract tables and upload to GCS") as tg:
-        for table in config['tables']:
-            PythonOperator(
-                task_id=f"extract_upload_{table['table_name']}",
-                python_callable=extract_and_upload_to_gcs,
-                op_kwargs={
-                    'table_name': table['table_name'],
-                    'columns': table['columns'],
-                    'postgres_conn_id': config.get('default_postgres_conn_id', 'postgres_default'),
-                    'gcs_bucket': 'talabat-labs-postgres-to-gcs',
-                },
-                dag=dag,
-            )
-
-    return dag
-
-# List your 3 YAML file paths here:
+# 👇 path to the YAMLs directory
 BASE_YAML_PATH = os.path.join(os.path.dirname(__file__), "TEMP")
 
-dags = {}
+def load_yaml_files(base_path):
+    """Recursively load all YAML files under TEMP folder."""
+    yamls = []
+    for root, dirs, files in os.walk(base_path):
+        for file in files:
+            if file.endswith(".yaml") or file.endswith(".yml"):
+                yamls.append(os.path.join(root, file))
+    return yamls
 
-YOUR_NAME = "maya"  # put your name here, lowercase recommended
+def create_dag_from_yaml(yaml_file_path):
+    with open(yaml_file_path, 'r') as stream:
+        config = yaml.safe_load(stream)
 
-for path_ in BASE_YAML_PATH:
-    with open(path_) as f:
-        config = yaml.safe_load(f)
-    dag_id_with_name = f"{config['dag_id']}_{YOUR_NAME}"  # append your name
-    dag = create_dag_from_yaml(config)
-    dag.dag_id = dag_id_with_name  # update the dag_id in the DAG object
-    dags[dag_id_with_name] = dag
+    dag_id = f'{config["dag_id"]}_hoda'
+    default_args = config.get("default_args", {})
+
+    # Convert start_date from str to datetime
+    if "start_date" in default_args:
+        default_args["start_date"] = datetime.strptime(default_args["start_date"], "%Y-%m-%d")
+
+    dag = DAG(
+        dag_id=dag_id,
+        description=config.get("description", ""),
+        schedule_interval=config.get("schedule_interval", None),
+        concurrency=config.get("concurrency", 1),
+        max_active_runs=config.get("max_active_runs", 1),
+        default_args=default_args,
+        catchup=default_args.get("catchup", False),
+        tags=["dynamic", config.get("default_dataset", "dataset")]
+    )
+
+    schema = config["default_source_schema"]
+    conn_id = config.get("default_postgres_conn_id", "default_conn_id_if_missing")
+    tables = config["tables"]
+
+    with dag:
+        for table in tables:
+            table_name = table["table_name"]
+            columns = table.get("columns", "*")
+
+            PostgresToGCSOperator(
+                task_id=f"export_{table_name}",
+                postgres_conn_id=conn_id,
+                sql=f"SELECT {columns} FROM {schema}.{table_name}",
+                bucket='talabat-labs-postgres-to-gcs',  
+                filename=f"hoda_{dag_id}/{table_name}_{{{{ ds_nodash }}}}.json",
+                export_format='json',
+                field_delimiter=',',
+                dag=dag
+            )
+
+    globals()[dag_id] = dag  # Register DAG globally
 
 
-globals().update(dags)
+# 🔁 Load and create all DAGs
+for yaml_path in load_yaml_files(BASE_YAML_PATH):
+    create_dag_from_yaml(yaml_path)
