@@ -39,8 +39,8 @@ def create_dag_from_yaml(yaml_file_path):
         tags=["dynamic", config.get("default_dataset", "dataset")]
     )
 
-    schema = config["default_source_schema"]
-    conn_id = config["default_postgres_conn_id"]
+    schema = config.get("default_source_schema","")
+    conn_id = config.get("default_postgres_conn_id","")
     tables = config["tables"]
 
     with dag:
